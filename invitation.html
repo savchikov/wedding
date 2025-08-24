@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Приглашение на свадьбу</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Montserrat:wght@200;300;400&display=swap');
+        
+        :root {
+            /* НАСТРОЙКИ - меняйте эти переменные */
+            --primary-color: #d4af37;
+            --secondary-color: #8b4513;
+            --accent-color: #f8e9d9;
+            --text-color: #2c3e2c;
+            --background-color: #faf7f2;
+            --font-heading: 'Cormorant Garamond', serif;
+            --font-body: 'Montserrat', sans-serif;
+            
+            /* Данные пары */
+            --groom-name: 'Артём';
+            --bride-name: 'Елизавета';
+            --wedding-date: '24 Июля 2026';
+            --wedding-time: '14:20';
+            --wedding-location: 'Лучшее место';
+            --wedding-address: 'ул. Цветочная, 15';
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            font-weight: 300;
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Динамические фоны с полевыми растениями */
+        .field-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .plant {
+            position: absolute;
+            bottom: -10px;
+            opacity: 0.25;
+            transition: transform 8s ease-in-out;
+            z-index: 1;
+        }
+        
+        .plant-1 {
+            left: 5%;
+            height: 150px;
+            animation: sway-1 15s ease-in-out infinite;
+        }
+        
+        .plant-2 {
+            left: 15%;
+            height: 120px;
+            animation: sway-2 12s ease-in-out infinite;
+        }
+        
+        .plant-3 {
+            right: 10%;
+            height: 140px;
+            animation: sway-3 14s ease-in-out infinite;
+        }
+        
+        .plant-4 {
+            right: 20%;
+            height: 110px;
+            animation: sway-4 10s ease-in-out infinite;
+        }
+        
+        .plant-5 {
+            left: 30%;
+            height: 130px;
+            animation: sway-5 13s ease-in-out infinite;
+        }
+        
+        .plant-6 {
+            right: 30%;
+            height: 125px;
+            animation: sway-6 11s ease-in-out infinite;
+        }
+        
+        .floating-petal {
+            position: absolute;
+            background: rgba(212, 175, 55, 0.3);
+            border-radius: 50% 50% 50% 0;
+            width: 12px;
+            height: 12px;
+            opacity: 0;
+            animation: float 20s linear infinite;
+            z-index: 2;
+        }
+        
+        @keyframes sway-1 {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        
+        @keyframes sway-2 {
+            0%, 100% { transform: rotate(4deg); }
+            50% { transform: rotate(-4deg); }
+        }
+        
+        @keyframes sway-3 {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+        
+        @keyframes sway-4 {
+            0%, 100% { transform: rotate(3deg); }
+            50% { transform: rotate(-3deg); }
+        }
+        
+        @keyframes sway-5 {
+            0%, 100% { transform: rotate(-4deg); }
+            50% { transform: rotate(4deg); }
+        }
+        
+        @keyframes sway-6 {
+            0%, 100% { transform: rotate(2deg); }
+            50% { transform: rotate(-2deg); }
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Герой секция */
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(212,175,55,0.05) 100%);
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(212,175,55,0.1);
+        }
+        
+        .hero::before {
+            content: '❤';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 300px;
+            opacity: 0.03;
+            z-index: 1;
+        }
+        
+        .hero h1 {
+            font-family: var(--font-heading);
+            font-size: 3.5em;
+            font-weight: 300;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .couple-names {
+            font-family: var(--font-heading);
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            color: var(--secondary-color);
+        }
+        
+        .date {
+            font-size: 1.3em;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+        }
+        
+        /* Информация о свадьбе */
+        .wedding-info {
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin: 0 auto;
+            max-width: 600px;
+            border: 1px solid rgba(212,175,55,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .info-item {
+            margin-bottom: 25px;
+        }
+        
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            font-family: var(--font-heading);
+            font-size: 1.2em;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        
+        .info-value {
+            font-size: 1.1em;
+            color: var(--text-color);
+        }
+        
+        /* Таймер */
+        .countdown {
+            padding: 60px 20px;
+            background: linear-gradient(135deg, var(--accent-color) 0%, rgba(255,255,255,0.8) 100%);
+            text-align: center;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(212,175,55,0.1);
+        }
+        
+        .countdown h2 {
+            font-family: var(--font-heading);
+            font-size: 2em;
+            margin-bottom: 40px;
+            color: var(--secondary-color);
+        }
+        
+        .countdown-container {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .countdown-item {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px 20px;
+            border-radius: 15px;
+            min-width: 90px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border: 1px solid rgba(212,175,55,0.1);
+            backdrop-filter: blur(5px);
+        }
+        
+        .countdown-value {
+            font-family: var(--font-heading);
+            font-size: 2.5em;
+            font-weight: 300;
+            color: var(--primary-color);
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .countdown-label {
+            font-size: 0.9em;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Дресс-код */
+        .dress-code {
+            padding: 60px 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(212,175,55,0.1);
+        }
+        
+        .dress-code h2 {
+            font-family: var(--font-heading);
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+        
+        .dress-code p {
+            max-width: 500px;
+            margin: 0 auto;
+            font-size: 1.1em;
+        }
+        
+        /* Контакты */
+        .contacts {
+            padding: 60px 20px;
+            background: rgba(248, 233, 217, 0.85);
+            text-align: center;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(212,175,55,0.1);
+        }
+        
+        .contacts h2 {
+            font-family: var(--font-heading);
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: var(--secondary-color);
+        }
+        
+        .contact-info {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        /* Футер */
+        .footer {
+            padding: 40px 20px;
+            text-align: center;
+            background: var(--secondary-color);
+            color: white;
+            border-radius: 20px;
+        }
+        
+        .footer p {
+            opacity: 0.8;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5em;
+            }
+            
+            .couple-names {
+                font-size: 1.8em;
+            }
+            
+            .countdown-container {
+                gap: 15px;
+            }
+            
+            .countdown-item {
+                min-width: 70px;
+                padding: 20px 15px;
+            }
+            
+            .countdown-value {
+                font-size: 2em;
+            }
+            
+            .plant {
+                opacity: 0.2;
+                height: 100px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero {
+                padding: 60px 20px;
+            }
+            
+            .hero h1 {
+                font-size: 2em;
+            }
+            
+            .couple-names {
+                font-size: 1.5em;
+            }
+            
+            .countdown-container {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .countdown-item {
+                flex: 1;
+                min-width: 60px;
+                padding: 15px 10px;
+            }
+            
+            .countdown-value {
+                font-size: 1.8em;
+            }
+            
+            .plant {
+                opacity: 0.15;
+                height: 80px !important;
+            }
+        }
+        
+        /* Анимации */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate {
+            animation: fadeInUp 1s ease-out forwards;
+        }
+        
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        .delay-4 { animation-delay: 0.8s; }
+    </style>
+</head>
+<body>
+    <!-- Динамический фон с полевыми растениями -->
+    <div class="field-background">
+        <svg class="plant plant-1" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50,200 C60,150 65,100 70,50 C75,30 60,10 50,0" stroke="var(--secondary-color)" stroke-width="3" fill="none"/>
+            <path d="M50,150 C55,140 60,130 55,120" stroke="var(--secondary-color)" stroke-width="2" fill="none"/>
+            <circle cx="55" cy="40" r="7" fill="var(--primary-color)" opacity="0.8"/>
+            <circle cx="45" cy="70" r="6" fill="var(--primary-color)" opacity="0.7"/>
+        </svg>
+        
+        <svg class="plant plant-2" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50,200 C45,160 40,120 45,80 C50,40 60,20 50,0" stroke="var(--secondary-color)" stroke-width="2.5" fill="none"/>
+            <path d="M45,120 C40,110 35,100 40,90" stroke="var(--secondary-color)" stroke-width="2" fill="none"/>
+            <circle cx="40" cy="50" r="6" fill="var(--primary-color)" opacity="0.8"/>
+            <circle cx="60" cy="90" r="5" fill="var(--primary-color)" opacity="0.7"/>
+        </svg>
+        
+        <svg class="plant plant-3" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50,200 C55,170 60,140 55,110 C50,80 45,40 50,0" stroke="var(--secondary-color)" stroke-width="2.8" fill="none"/>
+            <path d="M55,130 C60,120 65,110 60,100" stroke="var(--secondary-color)" stroke-width="2.2" fill="none"/>
+            <circle cx="60" cy="60" r="7" fill="var(--primary-color)" opacity="0.8"/>
+            <circle cx="40" cy="30" r="6" fill="var(--primary-color)" opacity="0.7"/>
+        </svg>
+        
+        <svg class="plant plant-4" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50,200 C40,150 35,100 40,50 C45,20 55,10 50,0" stroke="var(--secondary-color)" stroke-width="2.3" fill="none"/>
+            <path d="M40,80 C35,70 30,60 35,50" stroke="var(--secondary-color)" stroke-width="1.8" fill="none"/>
+            <circle cx="35" cy="30" r="6" fill="var(--primary-color)" opacity="0.8"/>
+            <circle cx="65" cy="70" r="5" fill="var(--primary-color)" opacity="0.7"/>
+        </svg>
+        
+        <svg class="plant plant-5" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50,200 C55,160 65,120 60,80 C55,40 45,20 50,0" stroke="var(--secondary-color)" stroke-width="2.7" fill="none"/>
+            <path d="M60,100 C65,90 70,80 65,70" stroke="var(--secondary-color)" stroke-width="2.1" fill="none"/>
+            <circle cx="65" cy="40" r="7" fill="var(--primary-color)" opacity="0.8"/>
+            <circle cx="45" cy="60" r="6" fill="var(--primary-color)" opacity="0.7"/>
+        </svg>
+        
+        <svg class="plant plant-6" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50,200 C45,170 40,140 45,110 C50,80 60,40 50,0" stroke="var(--secondary-color)" stroke-width="2.4" fill="none"/>
+            <path d="M45,130 C40,120 35,110 40,100" stroke="var(--secondary-color)" stroke-width="1.9" fill="none"/>
+            <circle cx="40" cy="50" r="6" fill="var(--primary-color)" opacity="0.8"/>
+            <circle cx="60" cy="80" r="5" fill="var(--primary-color)" opacity="0.7"/>
+        </svg>
+    </div>
+
+    <div class="container">
+        <!-- Герой секция -->
+        <section class="hero">
+            <h1 class="animate">Приглашение на свадьбу</h1>
+            <div class="couple-names animate delay-1">
+                <span id="groom-name">Артём</span> и <span id="bride-name">Елизавета</span>
+            </div>
+            <div class="date animate delay-2">
+                <span id="wedding-date">24 Июля 2026</span>
+            </div>
+        </section>
+        
+        <!-- Информация о свадьбе -->
+        <section class="wedding-info">
+            <div class="info-card animate delay-3">
+                <div class="info-item">
+                    <div class="info-label">Дата и время</div>
+                    <div class="info-value"><span id="info-date">24 Июля 2026</span> в <span id="info-time">16:00</span></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Место проведения</div>
+                    <div class="info-value"><span id="info-location">Лучшее место</span></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Адрес</div>
+                    <div class="info-value"><span id="info-address">ул. Цветочная, 15</span></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Таймер обратного отсчета -->
+        <section class="countdown">
+            <h2 class="animate">До нашего дня осталось</h2>
+            <div class="countdown-container">
+                <div class="countdown-item animate delay-1">
+                    <span class="countdown-value" id="days">00</span>
+                    <span class="countdown-label">дней</span>
+                </div>
+                <div class="countdown-item animate delay-2">
+                    <span class="countdown-value" id="hours">00</span>
+                    <span class="countdown-label">часов</span>
+                </div>
+                <div class="countdown-item animate delay-3">
+                    <span class="countdown-value" id="minutes">00</span>
+                    <span class="countdown-label">минут</span>
+                </div>
+                <div class="countdown-item animate delay-4">
+                    <span class="countdown-value" id="seconds">00</span>
+                    <span class="countdown-label">секунд</span>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Дресс-код -->
+        <section class="dress-code">
+            <h2 class="animate">Дресс-код</h2>
+            <p class="animate delay-1">Мы будем рады видеть вас в нарядах в пастельных тонах. Для мужчин - костюмы, для женщин - вечерние платья.</p>
+        </section>
+        
+        <!-- Контакты -->
+        <section class="contacts">
+            <h2 class="animate">Контакты</h2>
+            <div class="contact-info animate delay-1">
+                <p>По всем вопросам обращайтесь:</p>
+                <p>Артём:</p>
+                <p>Елизавета: </p>
+            </div>
+        </section>
+        
+        <!-- Футер -->
+        <footer class="footer">
+            <p>С любовью, <span id="footer-groom">Артём</span> и <span id="footer-bride">Елизавета</span></p>
+        </footer>
+    </div>
+
+    <script>
+        // КОНФИГУРАЦИЯ - меняйте эти значения
+        const CONFIG = {
+            // Основные настройки
+            groomName: "Артём",
+            brideName: "Елизавета",
+            weddingDate: "2026-07-24T14:20:00", // Формат: ГГГГ-ММ-ДДTЧЧ:мм:сс
+            weddingLocation: "Ресторан \"\"",
+            weddingAddress: "ул. Цветочная, 15,",
+            
+            // Дополнительные настройки
+            dressCode: "Мы будем рады видеть вас в нарядах в пастельных тонах. Для мужчин - костюмы, для женщин - вечерние платья.",
+            groomPhone: "",
+            bridePhone: "",
+            
+            // Цветовая схема (можно менять значения из CSS переменных)
+            colors: {
+                primary: "#d4af37",    // золотой
+                secondary: "#8b4513",  // коричневый
+                accent: "#f8e9d9",     // кремовый
+                text: "#2c3e2c",       // темно-зеленый
+                background: "#faf7f2"  // светло-бежевый
+            }
+        };
+        
+        // Инициализация сайта
+        class WeddingInvitation {
+            constructor(config) {
+                this.config = config;
+                this.initialize();
+            }
+            
+            initialize() {
+                this.updateTextContent();
+                this.updateColors();
+                this.startCountdown();
+                this.addAnimations();
+                this.createFloatingPetals();
+            }
+            
+            updateTextContent() {
+                // Обновляем имена
+                document.getElementById('groom-name').textContent = this.config.groomName;
+                document.getElementById('bride-name').textContent = this.config.brideName;
+                document.getElementById('footer-groom').textContent = this.config.groomName;
+                document.getElementById('footer-bride').textContent = this.config.brideName;
+                
+                // Обновляем дату и время
+                const weddingDate = new Date(this.config.weddingDate);
+                const formattedDate = weddingDate.toLocaleDateString('ru-RU', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+                
+                document.getElementById('wedding-date').textContent = formattedDate;
+                document.getElementById('info-date').textContent = formattedDate;
+                document.getElementById('info-time').textContent = weddingDate.toLocaleTimeString('ru-RU', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Обновляем место и контакты
+                document.getElementById('info-location').textContent = this.config.weddingLocation;
+                document.getElementById('info-address').textContent = this.config.weddingAddress;
+                
+                // Обновляем дресс-код и контакты
+                document.querySelector('.dress-code p').textContent = this.config.dressCode;
+                document.querySelector('.contacts p:nth-child(2)').textContent = `${this.config.groomName}: ${this.config.groomPhone}`;
+                document.querySelector('.contacts p:nth-child(3)').textContent = `${this.config.brideName}: ${this.config.bridePhone}`;
+            }
+            
+            updateColors() {
+                // Устанавливаем CSS переменные
+                document.documentElement.style.setProperty('--primary-color', this.config.colors.primary);
+                document.documentElement.style.setProperty('--secondary-color', this.config.colors.secondary);
+                document.documentElement.style.setProperty('--accent-color', this.config.colors.accent);
+                document.documentElement.style.setProperty('--text-color', this.config.colors.text);
+                document.documentElement.style.setProperty('--background-color', this.config.colors.background);
+            }
+            
+            startCountdown() {
+                const targetDate = new Date(this.config.weddingDate).getTime();
+                
+                const updateCountdown = () => {
+                    const now = new Date().getTime();
+                    const distance = targetDate - now;
+                    
+                    if (distance < 0) {
+                        document.querySelector('.countdown h2').textContent = 'Свадьба состоялась!';
+                        document.querySelector('.countdown-container').innerHTML = 
+                            '<div class="event-started">❤️ Мы счастливы!</div>';
+                        return;
+                    }
+                    
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    
+                    document.getElementById('days').textContent = this.formatTime(days);
+                    document.getElementById('hours').textContent = this.formatTime(hours);
+                    document.getElementById('minutes').textContent = this.formatTime(minutes);
+                    document.getElementById('seconds').textContent = this.formatTime(seconds);
+                };
+                
+                updateCountdown();
+                setInterval(updateCountdown, 1000);
+            }
+            
+            formatTime(time) {
+                return time < 10 ? `0${time}` : time;
+            }
+            
+            addAnimations() {
+                // Добавляем анимации при скролле
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('animate');
+                        }
+                    });
+                }, { threshold: 0.1 });
+                
+                document.querySelectorAll('section > *').forEach(el => {
+                    observer.observe(el);
+                });
+            }
+            
+            createFloatingPetals() {
+                const background = document.querySelector('.field-background');
+                const petalCount = 15;
+                
+                for (let i = 0; i < petalCount; i++) {
+                    const petal = document.createElement('div');
+                    petal.classList.add('floating-petal');
+                    
+                    // Случайные параметры для лепестков
+                    const size = Math.random() * 8 + 6;
+                    const left = Math.random() * 100;
+                    const delay = Math.random() * 20;
+                    const duration = Math.random() * 10 + 15;
+                    
+                    petal.style.width = `${size}px`;
+                    petal.style.height = `${size}px`;
+                    petal.style.left = `${left}%`;
+                    petal.style.animationDelay = `${delay}s`;
+                    petal.style.animationDuration = `${duration}s`;
+                    
+                    // Случайный оттенок золотого или пастельного
+                    const hue = Math.random() * 20 + 40; // 40-60 золотой диапазон
+                    const saturation = Math.random() * 30 + 60; // 60-90%
+                    const lightness = Math.random() * 15 + 70; // 70-85%
+                    petal.style.background = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.4)`;
+                    
+                    background.appendChild(petal);
+                }
+            }
+        }
+        
+        // Запускаем сайт при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            new WeddingInvitation(CONFIG);
+        });
+        
+        // Функция для легкой настройки (можно вызывать из консоли)
+        window.updateConfig = function(newConfig) {
+            Object.assign(CONFIG, newConfig);
+            new WeddingInvitation(CONFIG);
+        };
+    </script>
+</body>
+</html>
