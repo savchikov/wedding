@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.countdown-widget {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  padding: 30px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.countdown-header h2 {
+  margin: 0 0 25px 0;
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.countdown-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.countdown-item {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 20px 15px;
+  min-width: 80px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.countdown-value {
+  display: block;
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.countdown-label {
+  font-size: 14px;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.event-info {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 15px;
+  margin-top: 15px;
+}
+
+.event-info p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.event-started {
+  font-size: 24px;
+  font-weight: bold;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .countdown-container {
+    gap: 10px;
+  }
+  
+  .countdown-item {
+    min-width: 60px;
+    padding: 15px 10px;
+  }
+  
+  .countdown-value {
+    font-size: 28px;
+  }
+  
+  .countdown-label {
+    font-size: 12px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="countdown-widget">
+  <div class="countdown-header">
+    <h2>До события осталось:</h2>
+  </div>
+  <div class="countdown-container">
+    <div class="countdown-item">
+      <span class="countdown-value" id="days">00</span>
+      <span class="countdown-label">дней</span>
+    </div>
+    <div class="countdown-item">
+      <span class="countdown-value" id="hours">00</span>
+      <span class="countdown-label">часов</span>
+    </div>
+    <div class="countdown-item">
+      <span class="countdown-value" id="minutes">00</span>
+      <span class="countdown-label">минут</span>
+    </div>
+    <div class="countdown-item">
+      <span class="countdown-value" id="seconds">00</span>
+      <span class="countdown-label">секунд</span>
+    </div>
+  </div>
+  <div class="event-info">
+    <p>Событие начнется: <span id="event-date">01.01.2025 00:00</span></p>
+  </div>
+</div>
+
+<script>
+class CountdownWidget {
+  constructor(targetDate) {
+    this.targetDate = new Date(targetDate).getTime();
+    this.interval = null;
+    this.initialize();
+  }
+  
+  initialize() {
+    this.updateCountdown();
+    this.startTimer();
+  }
+  
+  updateCountdown() {
+    const now = new Date().getTime();
+    const distance = this.targetDate - now;
+    
+    if (distance < 0) {
+      this.handleExpired();
+      return;
+    }
+    
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+    this.updateDisplay(days, hours, minutes, seconds);
+  }
+  
+  updateDisplay(days, hours, minutes, seconds) {
+    document.getElementById('days').textContent = this.formatTime(days);
+    document.getElementById('hours').textContent = this.formatTime(hours);
+    document.getElementById('minutes').textContent = this.formatTime(minutes);
+    document.getElementById('seconds').textContent = this.formatTime(seconds);
+  }
+  
+  formatTime(time) {
+    return time < 10 ? `0${time}` : time;
+  }
+  
+  handleExpired() {
+    clearInterval(this.interval);
+    document.querySelector('.countdown-header h2').textContent = 'Событие началось!';
+    document.querySelector('.countdown-container').innerHTML = 
+      '<div class="event-started">🎉 Время пришло! 🎉</div>';
+  }
+  
+  startTimer() {
+    this.interval = setInterval(() => {
+      this.updateCountdown();
+    }, 1000);
+  }
+}
+
+// Установите здесь вашу целевую дату в формате: 'ГГГГ-ММ-ДДTЧЧ:мм:сс'
+const targetDate = '2026-07-24T14:20:00';
+
+// Форматируем дату для отображения
+const eventDate = new Date(targetDate);
+document.getElementById('event-date').textContent = 
+  eventDate.toLocaleDateString('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+// Запускаем счетчик
+new CountdownWidget(targetDate);
+</script>
+
+</body>
+</html>
