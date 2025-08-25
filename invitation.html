@@ -4,14 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Свадьба Артёма и Елизаветы</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💍</text></svg>">
+  <meta property="og:title" content="Свадьба Артёма и Елизаветы">
+  <meta property="og:description" content="Приглашаем вас на нашу свадьбу 24 июля 2026 года">
+  <meta property="og:image" content="https://example.com/path-to-image.jpg">
+  <meta property="og:url" content="https://example.com">
+  <meta name="twitter:card" content="summary_large_image">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400&display=swap');
-
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400&display=swap');
+    
     :root {
       --primary: #d4af37;
       --secondary: #8b4513;
       --bg: #faf7f2;
       --text: #2c3e2c;
+      --accent: #a6c48a;
     }
 
     * {margin: 0; padding: 0; box-sizing: border-box;}
@@ -22,6 +30,33 @@
       line-height: 1.6;
       position: relative;
       overflow-x: hidden;
+    }
+
+    /* Декоративные элементы */
+    .decoration {
+      position: absolute;
+      z-index: 1;
+      opacity: 0.1;
+      pointer-events: none;
+    }
+    
+    .decoration.floral-1 {
+      top: 5%;
+      left: 5%;
+      width: 150px;
+      height: 150px;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50,10 C60,20 80,25 90,35 C100,45 95,60 85,70 C75,80 60,85 50,85 C40,85 25,80 15,70 C5,60 0,45 10,35 C20,25 40,20 50,10 Z" fill="%238b4513"/></svg>');
+      background-repeat: no-repeat;
+    }
+    
+    .decoration.floral-2 {
+      bottom: 10%;
+      right: 5%;
+      width: 120px;
+      height: 120px;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50,20 C65,30 80,20 70,40 C80,50 70,65 50,70 C30,65 20,50 30,40 C20,20 35,30 50,20 Z" fill="%23d4af37"/></svg>');
+      background-repeat: no-repeat;
+      transform: rotate(45deg);
     }
 
     /* Боковое меню */
@@ -36,6 +71,11 @@
       cursor: pointer;
       color: #fff;
       font-size: 1.2em;
+      transition: transform 0.3s;
+    }
+    
+    .menu-btn:hover {
+      transform: scale(1.05);
     }
 
     .sidebar {
@@ -43,22 +83,42 @@
       top: 0; left: -250px;
       width: 220px;
       height: 100%;
-      background: rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.98);
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       backdrop-filter: blur(6px);
       padding: 60px 20px;
       transition: left 0.3s;
       z-index: 1050;
     }
+    
     .sidebar.active {left: 0;}
+    
     .sidebar a {
       display: block;
       margin: 15px 0;
       text-decoration: none;
       color: var(--secondary);
       font-weight: 500;
+      transition: color 0.3s;
+      position: relative;
     }
+    
     .sidebar a:hover {color: var(--primary);}
+    
+    .sidebar a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary);
+      transition: width 0.3s;
+    }
+    
+    .sidebar a:hover::after {
+      width: 100%;
+    }
 
     .overlay {
       position: fixed;
@@ -68,6 +128,7 @@
       display: none;
       z-index: 1000;
     }
+    
     .overlay.active {display: block;}
 
     section {
@@ -84,18 +145,68 @@
       text-align: center;
       margin-bottom: 20px;
     }
+    
     h1 {font-size: 3em; color: var(--primary);}
+    
+    h2 {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+    
+    h2::after {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 2px;
+      background: var(--primary);
+      margin: 10px auto 0;
+    }
 
     .hero {
       padding-top: 120px;
       text-align: center;
+      position: relative;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url('placeholder-hero.jpg'); /* Замените на свою фотографию */
+      background-size: cover;
+      background-position: center;
+      opacity: 0.2;
+      z-index: -1;
+    }
+    
     .hero .names {
-      font-size: 2em;
+      font-size: 2.5em;
       margin: 15px 0;
       color: var(--secondary);
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 600;
     }
-    .hero .date {font-size: 1.2em; letter-spacing: 2px;}
+    
+    .hero .date {
+      font-size: 1.5em; 
+      letter-spacing: 2px;
+      margin-top: 10px;
+    }
+    
+    .hero .invitation {
+      margin-top: 20px;
+      font-style: italic;
+      max-width: 600px;
+    }
 
     .info-card, .widget {
       background: #fff;
@@ -103,27 +214,69 @@
       padding: 25px;
       margin-bottom: 30px;
       box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .info-card:hover, .widget:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
 
-    .countdown {display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;}
+    .countdown {
+      display: flex; 
+      justify-content: center; 
+      gap: 15px; 
+      flex-wrap: wrap;
+    }
+    
     .countdown-item {
       background: #fff;
       padding: 15px;
       border-radius: 10px;
       text-align: center;
       min-width: 70px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
     }
-    .countdown-value {font-size: 1.8em; color: var(--primary);}
-    .countdown-label {font-size: 0.8em; color: var(--secondary);}
+    
+    .countdown-value {
+      font-size: 1.8em; 
+      color: var(--primary);
+      font-weight: bold;
+    }
+    
+    .countdown-label {
+      font-size: 0.8em; 
+      color: var(--secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
 
-    .program-item {margin-bottom: 15px;}
-    .program-time {font-weight: bold; color: var(--secondary);}
+    .program-item {
+      margin-bottom: 15px;
+      padding-left: 20px;
+      position: relative;
+    }
+    
+    .program-item::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+    }
+    
+    .program-time {
+      font-weight: bold; 
+      color: var(--secondary);
+      display: inline-block;
+      min-width: 70px;
+    }
 
     .map {
       width: 100%;
       height: 300px;
       border-radius: 12px;
       overflow: hidden;
+      border: none;
     }
 
     footer {
@@ -132,6 +285,10 @@
       background: var(--secondary);
       color: #fff;
     }
+    
+    footer p {
+      margin: 5px 0;
+    }
 
     /* Цветовые кружочки для дресс-кода */
     .dress-colors {
@@ -139,17 +296,21 @@
       justify-content: center;
       gap: 10px;
       margin-top: 20px;
+      flex-wrap: wrap;
     }
+    
     .dress-colors div {
       width: 30px;
       height: 30px;
       border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     /* Кнопка управления музыкой */
     .music-btn {
       position: fixed;
-      top: 20px; right: 20px;
+      top: 20px; 
+      right: 20px;
       z-index: 1100;
       background: #fff;
       border: none;
@@ -159,7 +320,13 @@
       font-size: 1.5em;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       color: var(--primary);
+      transition: transform 0.3s;
     }
+    
+    .music-btn:hover {
+      transform: scale(1.1);
+    }
+    
     .music-btn svg {
       width: 26px;
       height: 26px;
@@ -167,20 +334,173 @@
       stroke: var(--primary);
       stroke-width: 2;
     }
+    
     .music-btn .off line {
       stroke: var(--primary);
       stroke-width: 2.5;
     }
 
+    /* Галерея */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .gallery-item {
+      height: 200px;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    
+    .gallery-item:hover img {
+      transform: scale(1.05);
+    }
+
+    /* История пары */
+    .story-timeline {
+      position: relative;
+      margin: 40px 0;
+      padding-left: 30px;
+    }
+    
+    .story-timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 2px;
+      background: var(--primary);
+    }
+    
+    .story-item {
+      margin-bottom: 30px;
+      position: relative;
+    }
+    
+    .story-item::before {
+      content: '';
+      position: absolute;
+      left: -39px;
+      top: 5px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--secondary);
+      border: 3px solid var(--primary);
+    }
+    
+    .story-date {
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+
+    /* Форма RSVP */
+    .rsvp-form {
+      display: grid;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .form-group label {
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    .form-group input, 
+    .form-group select, 
+    .form-group textarea {
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+    }
+    
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+    
+    .btn:hover {
+      background: var(--secondary);
+    }
+    
+    .form-success {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      background: #f0f9f0;
+      border-radius: 8px;
+      margin-top: 20px;
+      color: #2e7d32;
+    }
+
+    /* Кнопка добавления в календарь */
+    .add-to-calendar {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 15px;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 0.9em;
+      transition: background 0.3s;
+    }
+    
+    .add-to-calendar:hover {
+      background: var(--secondary);
+    }
+
     @media (max-width:600px){
       h1 {font-size: 2.2em;}
-      .hero .names {font-size: 1.5em;}
+      .hero .names {font-size: 1.8em;}
+      .gallery {
+        grid-template-columns: 1fr;
+      }
+      
+      .decoration {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Декоративные элементы -->
+  <div class="decoration floral-1" aria-hidden="true"></div>
+  <div class="decoration floral-2" aria-hidden="true"></div>
+
   <!-- Кнопка меню -->
-  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <button class="menu-btn" onclick="toggleMenu()" aria-label="Открыть меню">☰</button>
+  
   <!-- Кнопка музыки -->
   <button class="music-btn" id="musicBtn" aria-label="Музыка">
     <svg id="iconSound" viewBox="0 0 24 24">
@@ -191,12 +511,16 @@
 
   <div class="sidebar" id="sidebar">
     <a href="#hero" onclick="toggleMenu()">Главная</a>
+    <a href="#story" onclick="toggleMenu()">Наша история</a>
     <a href="#info" onclick="toggleMenu()">Инфо</a>
     <a href="#program" onclick="toggleMenu()">Программа</a>
+    <a href="#gallery" onclick="toggleMenu()">Галерея</a>
     <a href="#map" onclick="toggleMenu()">Карта</a>
     <a href="#dress" onclick="toggleMenu()">Дресс-код</a>
+    <a href="#rsvp" onclick="toggleMenu()">Подтверждение</a>
     <a href="#contacts" onclick="toggleMenu()">Контакты</a>
   </div>
+  
   <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
   <!-- Герой -->
@@ -204,6 +528,32 @@
     <h1>Свадьба</h1>
     <div class="names">Артём и Елизавета</div>
     <div class="date">24 июля 2026</div>
+    <p class="invitation">Мы будем счастливы разделить с вами наш особенный день</p>
+  </section>
+
+  <!-- История пары -->
+  <section id="story">
+    <h2>Наша история</h2>
+    <div class="info-card">
+      <div class="story-timeline">
+        <div class="story-item">
+          <div class="story-date">Август 2023</div>
+          <div class="story-content">Наше первое свидание</div>
+        </div>
+        <div class="story-item">
+          <div class="story-date">Сентябрь 2023</div>
+          <div class="story-content">Первое совместное путешествие</div>
+        </div>
+        <div class="story-item">
+          <div class="story-date">Июль 2024</div>
+          <div class="story-content">Переезд в совместную квартиру</div>
+        </div>
+        <div class="story-item">
+          <div class="story-date">Июнь 2025</div>
+          <div class="story-content">Предложение на горе</div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- Инфо -->
@@ -213,6 +563,7 @@
       <p><b>Дата и время:</b> 24 июля 2026, 14:20</p>
       <p><b>Место:</b> Петроградский ЗАГС</p>
       <p><b>Адрес:</b> Большая Монетная ул., 17, Санкт-Петербург</p>
+      <a href="#" class="add-to-calendar" id="addToCalendar">Добавить в календарь</a>
     </div>
 
     <div class="widget">
@@ -230,18 +581,37 @@
   <section id="program">
     <h2>Программа дня</h2>
     <div class="info-card">
-      <div class="program-item"><div class="program-time">14:00</div> Сбор гостей</div>
-      <div class="program-item"><div class="program-time">14:20</div> Церемония</div>
-      <div class="program-item"><div class="program-time">15:00</div> Фотосессия</div>
-      <div class="program-item"><div class="program-time">16:30</div> Банкет</div>
-      <div class="program-item"><div class="program-time">22:00</div> Завершение</div>
+      <div class="program-item"><span class="program-time">14:00</span> Сбор гостей</div>
+      <div class="program-item"><span class="program-time">14:20</span> Церемония</div>
+      <div class="program-item"><span class="program-time">15:00</span> Фотосессия</div>
+      <div class="program-item"><span class="program-time">16:30</span> Банкет</div>
+      <div class="program-item"><span class="program-time">22:00</span> Завершение</div>
+    </div>
+  </section>
+
+  <!-- Галерея -->
+  <section id="gallery">
+    <h2>Наши моменты</h2>
+    <div class="gallery">
+      <div class="gallery-item">
+        <img src="photo1.jpg" alt="Мы в парке"> <!-- Замените на свою фотографию -->
+      </div>
+      <div class="gallery-item">
+        <img src="photo2.jpg" alt="Мы в путешествии"> <!-- Замените на свою фотографию -->
+      </div>
+      <div class="gallery-item">
+        <img src="photo3.jpg" alt="Мы на природе"> <!-- Замените на свою фотографию -->
+      </div>
+      <div class="gallery-item">
+        <img src="photo4.jpg" alt="Мы празднуем"> <!-- Замените на свою фотографию -->
+      </div>
     </div>
   </section>
 
   <!-- Карта -->
   <section id="map">
     <h2>Как добраться</h2>
-    <iframe class="map" src="https://maps.google.com/maps?q=Большая%20Монетная%20ул.%2C%2017%2C%20Санкт-Петербург&t=&z=15&ie=UTF8&iwloc=&output=embed"></iframe>
+    <iframe class="map" src="https://maps.google.com/maps?q=Большая%20Монетная%20ул.%2C%2017%2C%20Санкт-Петербург&t=&z=15&ie=UTF8&iwloc=&output=embed" aria-label="Карта с расположением ЗАГСа"></iframe>
   </section>
 
   <!-- Дресс-код -->
@@ -249,14 +619,47 @@
     <h2>Дресс-код</h2>
     <div class="info-card">
       Будем рады видеть вас в нарядах пастельных тонов.
-      Мужчины — костюмы, женщины — вечерние платья.
       <div class="dress-colors">
-        <div style="background:#d4af37;"></div>
-        <div style="background:#e4d96f;"></div>
-        <div style="background:#f8e9a1;"></div>
-        <div style="background:#a6c48a;"></div>
-        <div style="background:#c9d6a5;"></div>
-        <div style="background:#8fb996;"></div>
+        <div style="background:#d4af37;" aria-label="Золотой"></div>
+        <div style="background:#e4d96f;" aria-label="Светло-золотой"></div>
+        <div style="background:#f8e9a1;" aria-label="Кремовый"></div>
+        <div style="background:#a6c48a;" aria-label="Оливковый"></div>
+        <div style="background:#c9d6a5;" aria-label="Светло-зеленый"></div>
+        <div style="background:#8fb996;" aria-label="Мятный"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Форма RSVP -->
+  <section id="rsvp">
+    <h2>Подтвердите присутствие</h2>
+    <div class="info-card">
+      <form id="rsvpForm" class="rsvp-form">
+        <div class="form-group">
+          <label for="name">Ваше имя</label>
+          <input type="text" id="name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email или телефон</label>
+          <input type="text" id="email" required>
+        </div>
+        <div class="form-group">
+          <label for="guests">Количество гостей</label>
+          <select id="guests">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="message">Ваши пожелания или вопросы</label>
+          <textarea id="message"></textarea>
+        </div>
+        <button type="submit" class="btn">Подтвердить</button>
+      </form>
+      <div id="formSuccess" class="form-success">
+        Спасибо! Ваше подтверждение получено. Ждём вас на свадьбе!
       </div>
     </div>
   </section>
@@ -271,24 +674,31 @@
   </section>
 
   <footer>
-    С любовью, Артём и Елизавета
+    <p>С любовью, Артём и Елизавета</p>
+    <p>24 июля 2026</p>
   </footer>
 
   <!-- Аудио -->
   <audio id="bgMusic" loop preload="auto">
     <source src="fon.mp3" type="audio/mpeg">
+    <source src="fon.ogg" type="audio/ogg">
   </audio>
 
   <script>
+    // Предзагрузка шрифтов
+    document.fonts.load('1em Montserrat').then(() => {
+      document.body.classList.add('fonts-loaded');
+    });
+
     const targetDate = new Date("2026-07-24T14:20:00").getTime();
     setInterval(()=>{
       const now = new Date().getTime();
       const dist = targetDate - now;
       if(dist<=0)return;
       document.getElementById('days').textContent = Math.floor(dist/(1000*60*60*24));
-      document.getElementById('hours').textContent = Math.floor((dist%(1000*60*60*24))/(1000*60*60));
-      document.getElementById('minutes').textContent = Math.floor((dist%(1000*60*60))/(1000*60));
-      document.getElementById('seconds').textContent = Math.floor((dist%(1000*60))/1000);
+      document.getElementById('hours').textContent = Math.floor((dist%(1000*60*60*24))/(1000*60*60)).toString().padStart(2, '0');
+      document.getElementById('minutes').textContent = Math.floor((dist%(1000*60*60))/(1000*60)).toString().padStart(2, '0');
+      document.getElementById('seconds').textContent = Math.floor((dist%(1000*60))/1000).toString().padStart(2, '0');
     },1000);
 
     function toggleMenu(){
@@ -341,7 +751,7 @@
         music.volume = 0;
         music.muted = false;
         await music.play();
-        fadeTo(1, 600);
+        fadeTo(0.7, 600);
         setIcon(true);
         localStorage.setItem("music","on");
       }catch(e){
@@ -385,6 +795,68 @@
       }
       document.removeEventListener("click", onFirstClick);
     }, { once: true });
+
+    // Форма RSVP
+    document.getElementById('rsvpForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Здесь должен быть код для отправки данных на сервер
+      // В демо-версии просто показываем сообщение об успехе
+      
+      this.style.display = 'none';
+      document.getElementById('formSuccess').style.display = 'block';
+      
+      // Сохраняем в localStorage факт отправки
+      localStorage.setItem('rsvpSent', 'true');
+    });
+
+    // Проверяем, была ли уже отправлена форма
+    if (localStorage.getItem('rsvpSent') === 'true') {
+      document.getElementById('rsvpForm').style.display = 'none';
+      document.getElementById('formSuccess').style.display = 'block';
+    }
+
+    // Добавление в календарь
+    document.getElementById('addToCalendar').addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Создаем .ics файл для скачивания
+      const calendarData = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+SUMMARY:Свадьба Артёма и Елизаветы
+DTSTART:20260724T142000
+DTEND:20260724T220000
+LOCATION:Большая Монетная ул., 17, Санкт-Петербург
+DESCRIPTION:Свадьба Артёма и Елизаветы
+END:VEVENT
+END:VCALENDAR`;
+      
+      const blob = new Blob([calendarData], { type: 'text/calendar;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'Свадьба-Артема-и-Елизаветы.ics';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    // Плавная прокрутка для якорных ссылок
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 20,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
   </script>
 </body>
 </html>
