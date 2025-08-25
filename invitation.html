@@ -146,6 +146,32 @@
       border-radius: 50%;
     }
 
+    /* Кнопка управления музыкой */
+    .music-btn {
+      position: fixed;
+      top: 20px; right: 20px;
+      z-index: 1100;
+      background: #fff;
+      border: none;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.5em;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      color: var(--primary);
+    }
+    .music-btn svg {
+      width: 26px;
+      height: 26px;
+      fill: none;
+      stroke: var(--primary);
+      stroke-width: 2;
+    }
+    .music-btn .off line {
+      stroke: var(--primary);
+      stroke-width: 2.5;
+    }
+
     @media (max-width:600px){
       h1 {font-size: 2.2em;}
       .hero .names {font-size: 1.5em;}
@@ -155,6 +181,14 @@
 <body>
   <!-- Кнопка меню -->
   <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <!-- Кнопка музыки -->
+  <button class="music-btn" id="musicBtn" aria-label="Музыка">
+    <svg id="iconSound" viewBox="0 0 24 24">
+      <polygon points="3,9 9,9 13,5 13,19 9,15 3,15"/>
+      <path d="M16 8a5 5 0 0 1 0 8"/>
+    </svg>
+  </button>
+
   <div class="sidebar" id="sidebar">
     <a href="#hero" onclick="toggleMenu()">Главная</a>
     <a href="#info" onclick="toggleMenu()">Инфо</a>
@@ -240,6 +274,11 @@
     С любовью, Артём и Елизавета
   </footer>
 
+  <!-- Аудио -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="https://downloader.disk.yandex.ru/disk/690884c8276a21838aabe92640604ce50ca41d9a6ef174119c2ddf2726dd8475/68ac6fdc/_U1hIJvwG0r_Qx4_KVhqRc9Xrlk4itpm2cDYn70_4034jJeEa0uuMzyDA2QF0S-NkYHrwZu1uLyayqH5nbdgdg%3D%3D?uid=0&filename=Klod_Debyussi_-_Clair_De_Lune_48078999.mp3&disposition=attachment&hash=skpCNC6YAsfftBgIhozNBS20PTVJ8xKzzZXJv7sfnYgVfAlYyumuQ8IlBMzgVDI0q/J6bpmRyOJonT3VoXnDag%3D%3D%3A&limit=0&content_type=audio%2Fmpeg&owner_uid=211928654&fsize=10009518&hid=71eb081ee0f5f7727aba98c3f5f5a3c4&media_type=audio&tknv=v3" type="audio/mpeg">
+  </audio>
+
   <script>
     const targetDate = new Date("2026-07-24T14:20:00").getTime();
     setInterval(()=>{
@@ -256,6 +295,96 @@
       document.getElementById('sidebar').classList.toggle('active');
       document.getElementById('overlay').classList.toggle('active');
     }
+
+    const music = document.getElementById('bgMusic');
+    const btn = document.getElementById('musicBtn');
+    const icon = document.getElementById('iconSound');
+
+    function setIcon(isOn){
+      if(isOn){
+        icon.innerHTML = `
+          <polygon points="3,9 9,9 13,5 13,19 9,15 3,15"/>
+          <path d="M16 8a5 5 0 0 1 0 8"/>
+        `;
+      } else {
+        icon.innerHTML = `
+          <polygon points="3,9 9,9 13,5 13,19 9,15 3,15"/>
+          <line x1="15" y1="9" x2="21" y2="15" />
+          <line x1="21" y1="9" x2="15" y2="15" />
+        `;
+      }
+    }
+
+    let fadeReq = null;
+    function fadeTo(targetVolume, duration = 600, done){
+      try { music.muted = false; } catch(e){}
+      const startVol = Math.max(0, Math.min(1, music.volume || 0));
+      const start = performance.now();
+      if (fadeReq) cancelAnimationFrame(fadeReq);
+
+      function step(ts){
+        const t = Math.min(1, (ts - start) / duration);
+        const v = startVol + (targetVolume - startVol) * t;
+        music.volume = Math.max(0, Math.min(1, v));
+        if (t < 1){
+          fadeReq = requestAnimationFrame(step);
+        } else {
+          music.volume = Math.max(0, Math.min(1, targetVolume));
+          if (done) done();
+        }
+      }
+      fadeReq = requestAnimationFrame(step);
+    }
+
+    async function playWithFade(){
+      try{
+        music.volume = 0;
+        music.muted = false;
+        await music.play();
+        fadeTo(1, 600);
+        setIcon(true);
+        localStorage.setItem("music","on");
+      }catch(e){
+        setIcon(false);
+        localStorage.setItem("music","off");
+      }
+    }
+
+    function pauseWithFade(){
+      fadeTo(0, 500, ()=>{
+        try { music.pause(); } catch(e){}
+        music.muted = true;
+      });
+      setIcon(false);
+      localStorage.setItem("music","off");
+    }
+
+    btn.addEventListener("click", ()=>{
+      const isPlaying = !music.paused && !music.ended && music.currentTime > 0 && !music.muted && music.volume > 0.01;
+      if (isPlaying){
+        pauseWithFade();
+      } else {
+        playWithFade();
+      }
+    });
+
+    window.addEventListener("load", ()=>{
+      const saved = localStorage.getItem("music");
+      if(saved === "on"){
+        playWithFade();
+      } else {
+        setIcon(false);
+        music.muted = true;
+        music.volume = 0;
+      }
+    });
+
+    document.addEventListener("click", function onFirstClick(){
+      if(localStorage.getItem("music") === "on" && (music.paused || music.muted)){
+        playWithFade();
+      }
+      document.removeEventListener("click", onFirstClick);
+    }, { once: true });
   </script>
 </body>
 </html>
