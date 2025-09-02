@@ -254,7 +254,7 @@ h3 {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-image: url(assets/images/photo1.webp);
+  background-image: url(assets/images/photo1.jpg);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -2387,4 +2387,5 @@ h3 {
     font-size: 9px;
     padding: 2px 6px;
   }
+
 }
