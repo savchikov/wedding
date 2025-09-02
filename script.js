@@ -327,21 +327,21 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Конфигурация для Telegram бота
-const TELEGRAM_BOT_TOKEN = '7636378961:AAGLS9pWpMEV_l8nRRfuQ7DNiI0XfCArVRk'; // Замените на токен вашего бота
-const TELEGRAM_CHAT_ID = '-4977417118';     // Замените на ваш chat_id
+const TELEGRAM_BOT_TOKEN = '7636378961:AAGLS9pWpMEV_l8nRRfuQ7DNiI0XfCArVRk'; 
+const TELEGRAM_CHAT_ID = '-4977417118';     
 
 
 // Функция отправки данных в Telegram
 async function sendToTelegram(formData) {
   try {
     // Формируем текст сообщения
-    const text = `
-Новое подтверждение присутствия на свадьбе:
-    
-Имя: ${formData.name}
-Количество гостей: ${formData.guests}
-Присутствие: ${formData.attendance === 'yes' ? 'Да' : 'Нет'}
-Пожелания: ${formData.message || 'Отсутствуют'}
+        const text = `
+💌 <b>Новое подтверждение присутствия</b> 💌
+
+👤 Имя: <b>${formData.name}</b>
+👥 Количество гостей: <b>${formData.guests}</b>
+🎉 Присутствие: <b>${formData.attendance === 'yes' ? '✅ Да' : '❌ Нет'}</b>
+📝 Пожелания: ${formData.message && formData.message.trim() !== '' ? formData.message : '—'}
     `.trim();
 
     // Отправляем запрос к Telegram API
@@ -487,4 +487,5 @@ document.addEventListener('DOMContentLoaded', initForm);
 // Дополнительная проверка на случай если DOM уже загружен
 if (document.readyState !== 'loading') {
   initForm();
+
 }
