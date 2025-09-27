@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Montserrat:wght@200;300;400&display=swap');
+
+.countdown-widget {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  background: linear-gradient(135deg, #f8faf8 0%, #e8f5e8 50%, #d8edd8 100%);
+  border-radius: 24px;
+  padding: 45px 35px;
+  color: #2c3e2c;
+  text-align: center;
+  box-shadow: 
+    0 12px 36px rgba(76, 175, 80, 0.08),
+    0 4px 12px rgba(76, 175, 80, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  max-width: 720px;
+  margin: 40px auto;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(124, 179, 66, 0.15);
+}
+
+.countdown-widget::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(124, 179, 66, 0.3) 20%, 
+    rgba(124, 179, 66, 0.6) 50%, 
+    rgba(124, 179, 66, 0.3) 80%, 
+    transparent 100%);
+}
+
+.countdown-header {
+  margin-bottom: 45px;
+  position: relative;
+}
+
+.countdown-header h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 300;
+  font-family: 'Cormorant Garamond', serif;
+  color: #2c3e2c;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  position: relative;
+  display: inline-block;
+  padding: 0 50px;
+}
+
+.countdown-header h2::before,
+.countdown-header h2::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 30px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(76, 175, 80, 0.4), transparent);
+}
+
+.countdown-header h2::before {
+  left: 0;
+}
+
+.countdown-header h2::after {
+  right: 0;
+}
+
+.countdown-container {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  margin-bottom: 45px;
+}
+
+.countdown-item {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 18px;
+  padding: 28px 22px;
+  min-width: 90px;
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(124, 179, 66, 0.12);
+  box-shadow: 
+    0 6px 20px rgba(76, 175, 80, 0.06),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.countdown-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 25px rgba(76, 175, 80, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  border-color: rgba(124, 179, 66, 0.2);
+}
+
+.countdown-value {
+  display: block;
+  font-size: 38px;
+  font-weight: 200;
+  margin-bottom: 10px;
+  color: #2c3e2c;
+  font-family: 'Cormorant Garamond', serif;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  line-height: 1;
+}
+
+.countdown-label {
+  font-size: 13px;
+  color: #5a735a;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 300;
+  opacity: 0.9;
+}
+
+.event-info {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 14px;
+  padding: 22px 28px;
+  margin-top: 35px;
+  border: 1px solid rgba(124, 179, 66, 0.1);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  position: relative;
+}
+
+.event-info::before {
+  content: '◯';
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: rgba(76, 175, 80, 0.5);
+  letter-spacing: 0;
+}
+
+.event-info p {
+  margin: 0;
+  font-size: 15px;
+  color: #4a5c4a;
+  font-weight: 300;
+  padding-left: 25px;
+  letter-spacing: 0.5px;
+}
+
+.event-started {
+  font-size: 26px;
+  font-weight: 300;
+  padding: 35px;
+  color: #2c3e2c;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  letter-spacing: 1px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 18px;
+  border: 1px solid rgba(124, 179, 66, 0.1);
+}
+
+/* Декоративные элементы */
+.decoration {
+  position: absolute;
+  font-size: 14px;
+  color: rgba(76, 175, 80, 0.3);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.decoration:nth-child(1) { top: 25px; left: 30px; content: '∙'; }
+.decoration:nth-child(2) { top: 25px; right: 30px; content: '∙'; }
+.decoration:nth-child(3) { bottom: 25px; left: 35px; content: '∙'; }
+.decoration:nth-child(4) { bottom: 25px; right: 35px; content: '∙'; }
+.decoration:nth-child(5) { top: 50%; left: 20px; transform: translateY(-50%); content: '›'; }
+.decoration:nth-child(6) { top: 50%; right: 20px; transform: translateY(-50%); content: '‹'; }
+
+/* Тонкие анимации */
+@keyframes subtleFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-1px); }
+}
+
+.countdown-item {
+  animation: subtleFloat 4s ease-in-out infinite;
+}
+
+.countdown-item:nth-child(1) { animation-delay: 0s; }
+.countdown-item:nth-child(2) { animation-delay: 0.3s; }
+.countdown-item:nth-child(3) { animation-delay: 0.6s; }
+.countdown-item:nth-child(4) { animation-delay: 0.9s; }
+
+/* Эффект появления */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.countdown-item {
+  animation: 
+    fadeInUp 0.8s ease-out forwards,
+    subtleFloat 4s ease-in-out infinite 0.8s;
+}
+
+.countdown-item:nth-child(1) { animation-delay: 0s, 0s; }
+.countdown-item:nth-child(2) { animation-delay: 0.1s, 0.3s; }
+.countdown-item:nth-child(3) { animation-delay: 0.2s, 0.6s; }
+.countdown-item:nth-child(4) { animation-delay: 0.3s, 0.9s; }
+
+/* Адаптивность с сохранением эстетики */
+@media (max-width: 768px) {
+  .countdown-widget {
+    padding: 35px 25px;
+    margin: 30px 20px;
+    border-radius: 20px;
+  }
+  
+  .countdown-container {
+    gap: 18px;
+  }
+  
+  .countdown-item {
+    min-width: 70px;
+    padding: 22px 16px;
+    border-radius: 16px;
+  }
+  
+  .countdown-value {
+    font-size: 30px;
+  }
+  
+  .countdown-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+  }
+  
+  .countdown-header h2 {
+    font-size: 22px;
+    padding: 0 35px;
+  }
+  
+  .decoration:nth-child(5),
+  .decoration:nth-child(6) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .countdown-widget {
+    padding: 28px 20px;
+    margin: 20px 15px;
+  }
+  
+  .countdown-container {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .countdown-item {
+    min-width: 60px;
+    padding: 18px 12px;
+    flex: 1;
+  }
+  
+  .countdown-value {
+    font-size: 26px;
+  }
+  
+  .countdown-header h2 {
+    font-size: 19px;
+    padding: 0 25px;
+  }
+  
+  .event-info {
+    padding: 18px 22px;
+  }
+  
+  .event-info p {
+    font-size: 13px;
+  }
+}
+
+/* Тонкая полоска прогресса */
+.progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    rgba(76, 175, 80, 0.3), 
+    rgba(124, 179, 66, 0.6), 
+    rgba(76, 175, 80, 0.3));
+  width: 100%;
+  transform-origin: left;
+  animation: progress 60s linear infinite;
+}
+
+@keyframes progress {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+</style>
+</head>
+<body>
+
+<div class="countdown-widget">
+  <!-- Утонченные декоративные элементы -->
+  <div class="decoration"></div>
+  <div class="decoration"></div>
+  <div class="decoration"></div>
+  <div class="decoration"></div>
+  <div class="decoration"></div>
+  <div class="decoration"></div>
+  
+  <!-- Полоска прогресса -->
+  <div class="progress-bar"></div>
+  
+  <div class="countdown-header">
+    <h2>До свадьбы осталось</h2>
+  </div>
+  
+  <div class="countdown-container">
+    <div class="countdown-item">
+      <span class="countdown-value" id="days">00</span>
+      <span class="countdown-label">дней</span>
+    </div>
+    <div class="countdown-item">
+      <span class="countdown-value" id="hours">00</span>
+      <span class="countdown-label">часов</span>
+    </div>
+    <div class="countdown-item">
+      <span class="countdown-value" id="minutes">00</span>
+      <span class="countdown-label">минут</span>
+    </div>
+    <div class="countdown-item">
+      <span class="countdown-value" id="seconds">00</span>
+      <span class="countdown-label">секунд</span>
+    </div>
+  </div>
+  
+  <div class="event-info">
+    <p>Начало регистрации: <span id="event-date">01.01.2025 00:00</span></p>
+  </div>
+</div>
+
+<script>
+class CountdownWidget {
+  constructor(targetDate) {
+    this.targetDate = new Date(targetDate).getTime();
+    this.interval = null;
+    this.initialize();
+  }
+  
+  initialize() {
+    // Форматируем дату в утонченном стиле
+    const eventDate = new Date(targetDate);
+    document.getElementById('event-date').textContent = 
+      eventDate.toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    
+    this.updateCountdown();
+    this.startTimer();
+  }
+  
+  updateCountdown() {
+    const now = new Date().getTime();
+    const distance = this.targetDate - now;
+    
+    if (distance < 0) {
+      this.handleExpired();
+      return;
+    }
+    
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+    this.updateDisplay(days, hours, minutes, seconds);
+  }
+  
+  updateDisplay(days, hours, minutes, seconds) {
+    document.getElementById('days').textContent = this.formatTime(days);
+    document.getElementById('hours').textContent = this.formatTime(hours);
+    document.getElementById('minutes').textContent = this.formatTime(minutes);
+    document.getElementById('seconds').textContent = this.formatTime(seconds);
+  }
+  
+  formatTime(time) {
+    return time < 10 ? `0${time}` : time;
+  }
+  
+  handleExpired() {
+    clearInterval(this.interval);
+    document.querySelector('.countdown-header h2').innerHTML = 'Событие началось';
+    document.querySelector('.countdown-container').innerHTML = 
+      '<div class="event-started">Время пришло</div>';
+  }
+  
+  startTimer() {
+    this.interval = setInterval(() => {
+      this.updateCountdown();
+    }, 1000);
+  }
+}
+
+// Установите здесь вашу целевую дату
+const targetDate = '2026-07-24T14:20:00';
+
+// Запускаем счетчик
+document.addEventListener('DOMContentLoaded', function() {
+  new CountdownWidget(targetDate);
+});
+</script>
+
+</body>
+</html>
