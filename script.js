@@ -3,11 +3,40 @@
 // ============================
 
 (function() {
-  // Проверяем, открыт ли сайт в Telegram WebView
-  if (window.TelegramWebview) {
+  // Проверяем различные способы определения Telegram WebView
+  const isTelegramWebView = () => {
+    return window.TelegramWebview || 
+           window.Telegram?.WebApp || 
+           navigator.userAgent.includes('Telegram') ||
+           window.location.href.includes('tgWebAppData');
+  };
+
+  // Определяем платформу
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+
+  if (isTelegramWebView()) {
     const url = window.location.href;
-    const chromeUrl = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;end`;
-    window.location.href = chromeUrl;
+    
+    if (isIOS) {
+      // Для iOS используем window.open для открытия в браузере
+      try {
+        window.open(url, '_blank');
+      } catch (e) {
+        window.location.href = url;
+      }
+    } else if (isAndroid) {
+      // Для Android используем intent://
+      try {
+        const intentUrl = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+        window.location.href = intentUrl;
+      } catch (e) {
+        window.location.href = url;
+      }
+    } else {
+      // Для других платформ
+      window.location.href = url;
+    }
   }
 })();
 
