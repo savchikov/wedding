@@ -3,48 +3,11 @@
 // ============================
 
 (function() {
-  // Проверяем, открыт ли сайт в Telegram WebApp
-  if (window.Telegram && window.Telegram.WebApp) {
-    // Если есть кнопка "Открыть в браузере" - показываем её
-    if (window.Telegram.WebApp.openLink) {
-      const openInBrowser = () => {
-        window.Telegram.WebApp.openLink(window.location.href, { try_instant_view: false });
-      };
-      
-      // Показываем уведомление пользователю
-      const notification = document.createElement('div');
-      notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #0088cc;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 14px;
-        z-index: 10000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        text-align: center;
-        max-width: 90%;
-      `;
-      notification.innerHTML = `
-        <div style="margin-bottom: 8px;">Для лучшего опыта откройте сайт в браузере</div>
-        <button onclick="this.parentElement.remove(); window.Telegram.WebApp.openLink(window.location.href, {try_instant_view: false});" 
-                style="background: white; color: #0088cc; border: none; padding: 6px 12px; border-radius: 4px; font-weight: 500; cursor: pointer;">
-          Открыть в браузере
-        </button>
-      `;
-      document.body.appendChild(notification);
-      
-      // Автоматически скрываем через 10 секунд
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.remove();
-        }
-      }, 10000);
-    }
+  // Проверяем, открыт ли сайт в Telegram WebView
+  if (window.TelegramWebview) {
+    const url = window.location.href;
+    const chromeUrl = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;end`;
+    window.location.href = chromeUrl;
   }
 })();
 
