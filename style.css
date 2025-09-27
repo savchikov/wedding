@@ -159,6 +159,11 @@ body {
   cursor: pointer;
   color: var(--light-text);
   font-size: var(--font-size-lg);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .menu-btn:hover {
@@ -2240,6 +2245,11 @@ h3 {
   font-size: var(--font-size-lg);
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   color: var(--primary);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .music-btn svg {
@@ -2262,6 +2272,14 @@ h3 {
     --font-size-lg: 1.3em;
     --font-size-md: 1.1em;   /* основной текст чуть больше */
     --font-size-sm: 1em;     /* мелкий текст стал нормальным */
+  }
+  
+  /* Кнопки остаются одинакового размера на мобильных */
+  .menu-btn,
+  .music-btn {
+    width: 40px;
+    height: 40px;
+    padding: 8px 10px;
   }
   
   .hero h1 {
@@ -2326,4 +2344,12 @@ h3 {
 @media (max-width: 360px) {
   .dress-colors div { width: 30px; height: 30px; }
   .dress-colors div::before { font-size: 11px; padding: 3px 7px; }
+  
+  /* Кнопки остаются одинакового размера даже на очень маленьких экранах */
+  .menu-btn,
+  .music-btn {
+    width: 38px;
+    height: 38px;
+    padding: 7px 9px;
+  }
 }
