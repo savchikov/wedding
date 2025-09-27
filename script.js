@@ -262,7 +262,28 @@ document.getElementById('addToCalendar').addEventListener('click', function () {
 // ============================
 // Обработка прелоадера (заставки)
 // ============================
-document.addEventListener("DOMContentLoaded", () => {
+
+// Ждем загрузки кастомного шрифта перед показом прелоадера
+function waitForFont() {
+  return new Promise((resolve) => {
+    if ('fonts' in document) {
+      document.fonts.load('1em "Dihjauti Regular"').then(() => {
+        resolve();
+      }).catch(() => {
+        // Если шрифт не загрузился, продолжаем без него
+        resolve();
+      });
+    } else {
+      // Fallback для старых браузеров
+      setTimeout(resolve, 100);
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  // Ждем загрузки шрифта
+  await waitForFont();
+  
   const preloader = document.getElementById("preloader");
   let opened = false;
 
