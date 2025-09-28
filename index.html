@@ -6,8 +6,6 @@
 <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- Предзагрузка кастомного шрифта -->
-  <link rel="preload" href="assets/fonts/Dihjauti Regular.otf" as="font" type="font/otf" crossorigin>
   
   <!-- Заголовок страницы -->
   <title>Свадьба Артёма и Елизаветы</title>
@@ -96,7 +94,10 @@
     
     <div class="hero-scroll-indicator">
       <div class="scroll-arrow" aria-hidden="true" aria-label="Прокрутите вниз">
-        <span class="chevron"></span>
+        <svg class="arrow-down" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5V19M12 19L19 12M12 19L5 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="scroll-text">Листайте вниз</span>
       </div>
     </div>
   </div>
@@ -120,7 +121,7 @@
         </svg>
       </div>
       <div class="event-info">
-        <div class="event-label">Дата и время</div>
+        <div class="event-label">Дата нашей регистрации</div>
         <div class="event-value">24 июля 2026 в 14:20</div>
       </div>
     </div>
@@ -156,8 +157,8 @@
         </svg>
       </div>
       <div class="event-info">
-        <div class="event-label">Адрес</div>
-        <div class="event-value">Большая Монетная ул., 17, Санкт-Петербург</div>
+        <div class="event-label">Банкет</div>
+        <div class="event-value">Five Star Place</div>
       </div>
     </div>
   </div>
@@ -210,8 +211,7 @@
       </div>
       <div class="timeline-content">
         <h3>Фотосессия</h3>
-        <p>Прогулка по красивым местам Петроградской стороны.</p>
-		<p>Трансфер до места банкета</p>
+        <p>Прогулка по красивым местам Петроградской стороны. Трансфер до места банкета</p>
       </div>
     </div>
     
@@ -234,38 +234,43 @@
       </div>
       <div class="timeline-content">
         <h3>Завершение</h3>
-        <p>Окончание праздника.</p>
-		<p>Трансфер обратно</p>
+        <p>Окончание праздника. Трансфер обратно</p>
       </div>
     </div>
   </div>
     
 <!-- Информация о подарках -->
-<div class="gift-section">
+<div class="gift-section reveal">
   <div class="gift-header">
-    <div class="gift-icon">
-      <svg class="gift-box" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-        <rect x="8" y="22" width="48" height="28" rx="6" class="gift-body"/>
-        <rect x="10" y="18" width="44" height="10" rx="5" class="gift-lid"/>
-        <rect x="30" y="18" width="4" height="32" class="gift-ribbon-vert"/>
-        <rect x="8" y="34" width="48" height="4" class="gift-ribbon-horz"/>
-        <path d="M32 18c-3-6-10-8-13-4-3 3 1 8 7 9 2-2 4-3 6-5z" class="gift-bow"/>
-        <path d="M32 18c3-6 10-8 13-4 3 3-1 8-7 9-2-2-4-3-6-5z" class="gift-bow"/>
+    <div class="gift-header-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="8" width="18" height="12" rx="2"/>
+        <path d="M12 2v6"/>
+        <path d="M8 2v6"/>
+        <path d="M16 2v6"/>
+        <path d="M6 8h12"/>
+        <path d="M9 14h6"/>
       </svg>
     </div>
-    <h3>Наши пожелания по подаркам</h3>
+        <h3>Детали</h3>
   </div>
   
   <div class="gift-content">
-    <p class="gift-message">Мы будем искренне рады вашему участию в нашем празднике!</p>
-    <p class="gift-description">Если вы хотите сделать нам подарок, мы будем благодарны за денежный вклад в наш общий семейный бюджет</p>
+    <div class="gift-intro">
+      <h4>Главное для нас — ваше присутствие</h4>
+      <p>Мы будем искренне рады видеть вас на нашем празднике! Ваше внимание и участие в этот особенный день — это самый ценный подарок для нас.</p>
+    </div>
+    
+    <div class="gift-main">
+      <p>Если вы хотите сделать нам подарок, мы будем благодарны за денежный вклад в наш общий семейный бюджет. Это поможет нам в начале нашего совместного пути.</p>
+    </div>
     
     <div class="gift-decoration">
       <div class="gift-line"></div>
     </div>
     
-    <div class="gift-note">
-      <p>Ваша поддержка поможет нам в начале нашего совместного пути</p>
+    <div class="gift-conclusion">
+      <p>Ваша поддержка и любовь — это то, что сделает наш день по-настоящему особенным. Просим вас возжержаться от криков <b>«Горько!»</b> и сохранить атмосферу уютного семейного праздника.</p>
     </div>
   </div>
 </div>
@@ -275,7 +280,7 @@
   <section id="dress" class="torn-edge">
     <h2>Дресс-код</h2>
     <div class="info-card">
-      <p>Мы будем рады видеть вас в платьях и костюмах этих тонов — лёгких, нежных, с оттенком сказочности и природной гармонии, в стиле летнего праздника среди полевых цветов.</p>
+      <p>Мы будем рады видеть вас в платьях и костюмах в стиле летнего праздника среди полевых цветов.</p>
       <!-- Слайдер для фотографий с примерами одежды -->
       <div class="dress-slider">
         <div class="dress-slides">
@@ -303,12 +308,9 @@
   </section>
   
   <section id="attendance" class="torn-edge">
-    <h2>Подтверждение присутствия</h2>
+    <h2>Анкета</h2>
     <div class="info-card">
-      <p>Мы очень ждём вас на нашем мероприятии!</p>
-	  <p>Пожалуйста, подтвердите ваше присутствие </p>
-	  <p>на свадьбе до <b>10 июля 2026 года</b>. </p>
-	  <p>Это очень важно для нас</p>
+	  <p>Пожалуйста, подтвердите ваше присутствие на свадьбе до <b>10 июля 2026 года</b>. Это очень важно для нас</p>
       <form id="attendanceForm" class="attendance-form">
         <div class="form-group">
           <label for="name">Ваше имя и фамилия *</label>
@@ -340,10 +342,10 @@
         
         <div class="form-group">
           <label for="message">Ваши пожелания или комментарии</label>
-          <textarea id="message" name="message" rows="3" placeholder="Напишите здесь ваши пожелания или особые пожелания по питанию. Если у вас есть аллергия на что-то, то напишите нам об этом"></textarea>
+          <textarea id="message" name="message" rows="3" placeholder="Напишите здесь ваши пожелания. Если у вас есть аллергия на что-то, то напишите нам об этом"></textarea>
         </div>
         
-        <button type="submit" class="btn" id="submitBtn">Подтвердить присутствие</button>
+        <button type="submit" class="btn" id="submitBtn">Отправить</button>
       </form>
       
       <div id="formMessage" class="form-message"></div>
