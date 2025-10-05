@@ -264,30 +264,58 @@ document.getElementById('addToCalendar').addEventListener('click', function () {
 // ============================
 
 document.addEventListener("DOMContentLoaded", () => {
-  
-  const preloader = document.getElementById("preloader");
-  let opened = false;
+  // Two-stage preloader logic with font loading
+  const overlay = document.getElementById('preloaderOverlay');
+  const stage2 = overlay ? overlay.querySelector('.preloader-stage2') : null;
+  const preloader = document.getElementById('preloader');
+  const FONT_FAMILY = 'myfont';
+  const FONT_TIMEOUT = 5000;
+  const AUTO_CLOSE = 10000;
+  if (!overlay || !stage2 || !preloader) return;
 
-  function openPreloader() {
-    if (opened) return;
-    opened = true;
+  // Move existing preloader into stage2 container to ensure it is inside overlay
+  try { stage2.appendChild(preloader); } catch (e) {}
 
-    // Добавляем анимацию исчезновения
-    preloader.style.opacity = "0";
-    preloader.style.transition = "opacity 0.8s ease, visibility 0.8s ease";
+  // Prevent background scroll while overlay active
+  document.documentElement.classList.add('preloader-active');
 
-    setTimeout(() => {
-      preloader.style.visibility = "hidden";
-    }, 800);
+  function closeOverlay() {
+    overlay.classList.add('hidden');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('preloader-active');
+    setTimeout(() => { try { overlay.remove(); } catch(e) {} }, 500);
   }
 
-  // Открытие по клику
-  preloader.addEventListener('click', openPreloader);
+  function showStage2StartTimer() {
+    overlay.classList.add('stage2-ready');
+    overlay.setAttribute('aria-hidden', 'false');
+    let closed = false;
+    const timer = setTimeout(() => { if (!closed) { closed = true; closeOverlay(); } }, AUTO_CLOSE);
 
-  // Автоматическое открытие через 10 секунд
-  setTimeout(() => {
-    if (!opened) openPreloader();
-  }, 10000);
+    // Manual close via click on overlay outside preloader
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        if (!closed) { closed = true; clearTimeout(timer); closeOverlay(); }
+      }
+    });
+    // Manual close by clicking the preloader content itself
+    preloader.addEventListener('click', () => {
+      if (!closed) { closed = true; clearTimeout(timer); closeOverlay(); }
+    }, { once: true });
+    // ESC close
+    document.addEventListener('keydown', function escHandler(e) {
+      if (e.key === 'Escape') { if (!closed) { closed = true; clearTimeout(timer); closeOverlay(); } document.removeEventListener('keydown', escHandler); }
+    });
+  }
+
+  (async function waitFontsThenShow() {
+    try {
+      const specific = (document.fonts && document.fonts.load) ? document.fonts.load(`1rem "${FONT_FAMILY}"`) : Promise.resolve();
+      const ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+      await Promise.race([Promise.all([specific, ready]), new Promise(res => setTimeout(res, FONT_TIMEOUT))]);
+    } catch (e) { /* ignore */ }
+    showStage2StartTimer();
+  })();
 });
 
 // --- EASTER EGG: open heart modal and fireworks ---
