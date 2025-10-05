@@ -506,6 +506,13 @@ h3 {
     font-size: calc(var(--font-size-xl) * 1.2);
     letter-spacing: 2px;
   }
+  /* Disable fixed background and transforms to prevent mobile jump */
+  .hero {
+    background-attachment: scroll;
+    background-position: center center;
+    transform: none !important;
+    will-change: auto;
+  }
   .arrow-down {
     width: 20px;
     height: 20px;
