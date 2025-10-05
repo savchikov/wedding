@@ -508,10 +508,18 @@ h3 {
   }
   /* Disable fixed background and transforms to prevent mobile jump */
   .hero {
-    background-attachment: scroll;
-    background-position: center center;
+    background-attachment: scroll !important;
+    background-position: center center !important;
     transform: none !important;
     will-change: auto;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    contain: paint;
+    /* Remove full-bleed vw hack on mobile to avoid reflow/zoom jumps */
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    background-size: cover;
   }
   .arrow-down {
     width: 20px;
