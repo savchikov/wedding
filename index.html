@@ -10,10 +10,26 @@
   <!-- Заголовок страницы -->
   <title>Свадьба Артёма и Елизаветы</title>
   
+  <!-- Минимальные inline-стили для первого прелоадера (должны идти до style.css) -->
+  <style>
+    /* Пустой overlay сразу виден до загрузки основного CSS */
+    #preloaderOverlay { position: fixed; inset: 0; background: var(--bg, #EBD4CB); display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.45s ease; }
+    /* Скрыт второй этап до готовности шрифта */
+    #preloaderOverlay .preloader-stage2 { opacity: 0; visibility: hidden; }
+    #preloaderOverlay.stage2-ready .preloader-stage2 { opacity: 1; visibility: visible; transition: opacity 0.6s ease; }
+    /* Полное скрытие overlay после закрытия */
+    #preloaderOverlay.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+    /* Блокируем скролл пока overlay активен */
+    html.preloader-active { overflow: hidden; height: 100%; }
+  </style>
   <!-- Подключение CSS -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Первый (пустой) прелоадер: должен быть первым элементом в body -->
+  <div id="preloaderOverlay" role="dialog" aria-modal="true" aria-hidden="false" tabindex="-1">
+    <div class="preloader-stage2"><!-- сюда переместим существующий #preloader через JS --></div>
+  </div>
   <!-- Заставка (прелоадер) -->
   <div class="preloader" id="preloader">
     <div class="rings">
