@@ -290,6 +290,118 @@ document.addEventListener("DOMContentLoaded", () => {
   }, 10000);
 });
 
+// --- EASTER EGG: open heart modal and fireworks ---
+(function() {
+  function initEaster() {
+    const trigger = document.getElementById('easterHeartTrigger') || document.querySelector('.heart-icon');
+    const overlay = document.getElementById('easterOverlay');
+    const closeBtn = document.getElementById('easterClose');
+    const canvas = document.getElementById('easterFireworks');
+    const modal = overlay ? overlay.querySelector('.easter-modal') : null;
+    let lastFocused = null;
+    let rafId = null;
+    let fw = null;
+
+    if (!overlay || !canvas) return;
+
+    function openEaster() {
+      lastFocused = document.activeElement;
+      overlay.classList.add('active');
+      overlay.setAttribute('aria-hidden', 'false');
+      try { closeBtn && closeBtn.focus(); } catch (e) {}
+      startFireworks(canvas);
+      document.documentElement.style.overflow = 'hidden';
+    }
+
+    function closeEaster() {
+      overlay.classList.remove('active');
+      overlay.setAttribute('aria-hidden', 'true');
+      stopFireworks();
+      document.documentElement.style.overflow = '';
+      try { if (lastFocused) lastFocused.focus(); } catch (e) {}
+    }
+
+    if (trigger) trigger.addEventListener('click', (e) => { e.preventDefault(); openEaster(); });
+    if (closeBtn) closeBtn.addEventListener('click', closeEaster);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeEaster(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.classList.contains('active')) closeEaster(); });
+
+    function startFireworks(canvasEl) {
+      const ctx = canvasEl.getContext('2d');
+      let particles = [];
+      let w = canvasEl.width = canvasEl.clientWidth * devicePixelRatio;
+      let h = canvasEl.height = canvasEl.clientHeight * devicePixelRatio;
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+
+      const scaleFactor = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--easter-fireworks-scale')) || 1;
+      const maxParticles = Math.max(30, Math.floor(60 * scaleFactor));
+
+      function rand(min, max){ return Math.random()*(max-min)+min; }
+
+      function resize() {
+        w = canvasEl.width = canvasEl.clientWidth * devicePixelRatio;
+        h = canvasEl.height = canvasEl.clientHeight * devicePixelRatio;
+        ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+      }
+      window.addEventListener('resize', resize);
+
+      function spawnFirework() {
+        const cx = rand(canvasEl.clientWidth*0.25, canvasEl.clientWidth*0.75);
+        const cy = rand(canvasEl.clientHeight*0.15, canvasEl.clientHeight*0.65);
+        const hue = rand(260, 330);
+        const count = Math.floor(rand(14, 30) * scaleFactor);
+        for (let i=0;i<count;i++){
+          const angle = Math.random()*Math.PI*2;
+          const speed = rand(1,6);
+          particles.push({
+            x: cx, y: cy,
+            vx: Math.cos(angle)*speed,
+            vy: Math.sin(angle)*speed,
+            life: rand(60,120),
+            age: 0,
+            color: `hsla(${hue + rand(-30,30)},60%,60%,1)`,
+            size: rand(1,3)
+          });
+        }
+        if (particles.length > maxParticles * 4) particles = particles.slice(-maxParticles*4);
+      }
+
+      function step() {
+        ctx.clearRect(0,0,canvasEl.clientWidth,canvasEl.clientHeight);
+        if (Math.random() < 0.06 * scaleFactor) spawnFirework();
+        for (let i = particles.length-1; i >= 0; i--) {
+          const p = particles[i];
+          p.age++;
+          p.vy += 0.02;
+          p.x += p.vx;
+          p.y += p.vy;
+          const alpha = 1 - p.age / p.life;
+          ctx.beginPath();
+          ctx.fillStyle = p.color.replace(/,1\)$/, `,${alpha})`);
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+          ctx.fill();
+          if (p.age >= p.life) particles.splice(i,1);
+        }
+        rafId = requestAnimationFrame(step);
+      }
+
+      step();
+
+      fw = { stop: () => { cancelAnimationFrame(rafId); window.removeEventListener('resize', resize); ctx.clearRect(0,0,canvasEl.clientWidth,canvasEl.clientHeight); } };
+    }
+
+    function stopFireworks(){
+      if (fw && typeof fw.stop === 'function') fw.stop();
+      fw = null;
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEaster);
+  } else {
+    initEaster();
+  }
+})();
 /// ============================
 // Кнопка построения маршрута (с выбором)
 // ============================
