@@ -72,156 +72,102 @@ function toggleMenu() {
 // Управление музыкой
 // ============================
 
-let music, btn, icon; // Объявляем переменные
+const music = document.getElementById('bgMusic'); // Тег <audio>
+const btn = document.getElementById('musicBtn');  // Кнопка в интерфейсе
+const icon = document.getElementById('iconSound');// Иконка (SVG)
+
+// Функция смены иконки (звук вкл/выкл)
+function setIcon(isOn) {
+  if (isOn) {
+    icon.innerHTML = `
+      <polygon points="3,9 9,9 13,5 13,19 9,15 3,15"/>
+      <path d="M16 8a5 5 0 0 1 0 8"/>
+    `;
+  } else {
+    icon.innerHTML = `
+      <polygon points="3,9 9,9 13,5 13,19 9,15 3,15"/>
+      <line x1="15" y1="9" x2="21" y2="15" />
+      <line x1="21" y1="9" x2="15" y2="15" />
+    `;
+  }
+}
+
+// Анимация плавного изменения громкости
 let fadeReq = null;
-let musicInitialized = false;
-let firstInteractionDone = false;
+function fadeTo(targetVolume, duration = 600, done) {
+  try { music.muted = false; } catch (e) { }
+  const startVol = Math.max(0, Math.min(1, music.volume || 0)); // стартовая громкость
+  const start = performance.now();
+  if (fadeReq) cancelAnimationFrame(fadeReq);
 
-// Функция инициализации музыки (вызывается после загрузки DOM)
-function initMusic() {
-  if (musicInitialized) return;
-  
-  music = document.getElementById('bgMusic'); // Тег <audio>
-  btn = document.getElementById('musicBtn');  // Кнопка в интерфейсе
-  icon = document.getElementById('iconSound');// Иконка (SVG)
-  
-  if (!music || !btn || !icon) {
-    // Элементы еще не загружены, попробуем позже
-    setTimeout(initMusic, 100);
-    return;
-  }
-  
-  musicInitialized = true;
-  
-  // Функция смены иконки (звук вкл/выкл)
-  function setIcon(isOn) {
-    if (!icon) return;
-    if (isOn) {
-      icon.innerHTML = `
-        <polygon points="3,9 9,9 13,5 13,19 9,15 3,15"/>
-        <path d="M16 8a5 5 0 0 1 0 8"/>
-      `;
+  function step(ts) {
+    const t = Math.min(1, (ts - start) / duration); // прогресс от 0 до 1
+    const v = startVol + (targetVolume - startVol) * t; // новое значение громкости
+    music.volume = Math.max(0, Math.min(1, v));
+    if (t < 1) {
+      fadeReq = requestAnimationFrame(step);
     } else {
-      icon.innerHTML = `
-        <polygon points="3,9 9,9 13,5 13,19 9,15 3,15"/>
-        <line x1="15" y1="9" x2="21" y2="15" />
-        <line x1="21" y1="9" x2="15" y2="15" />
-      `;
+      music.volume = Math.max(0, Math.min(1, targetVolume));
+      if (done) done(); // вызываем колбэк, если есть
     }
   }
+  fadeReq = requestAnimationFrame(step);
+}
 
-  // Анимация плавного изменения громкости
-  function fadeTo(targetVolume, duration = 600, done) {
-    if (!music) return;
-    try { music.muted = false; } catch (e) { }
-    const startVol = Math.max(0, Math.min(1, music.volume || 0)); // стартовая громкость
-    const start = performance.now();
-    if (fadeReq) cancelAnimationFrame(fadeReq);
-
-    function step(ts) {
-      if (!music) return;
-      const t = Math.min(1, (ts - start) / duration); // прогресс от 0 до 1
-      const v = startVol + (targetVolume - startVol) * t; // новое значение громкости
-      music.volume = Math.max(0, Math.min(1, v));
-      if (t < 1) {
-        fadeReq = requestAnimationFrame(step);
-      } else {
-        music.volume = Math.max(0, Math.min(1, targetVolume));
-        if (done) done(); // вызываем колбэк, если есть
-      }
-    }
-    fadeReq = requestAnimationFrame(step);
-  }
-
-  // Включение музыки с плавным нарастанием
-  async function playWithFade() {
-    if (!music) return;
-    try {
-      music.volume = 0;
-      music.muted = false;
-      await music.play();
-      fadeTo(1, 600); // плавно до 100% громкости
-      setIcon(true);
-      localStorage.setItem("music", "on"); // сохраняем состояние
-    } catch (e) {
-      console.log("Ошибка воспроизведения музыки:", e);
-      setIcon(false);
-      localStorage.setItem("music", "off");
-    }
-  }
-
-  // Пауза музыки с плавным затуханием
-  function pauseWithFade() {
-    if (!music) return;
-    fadeTo(0, 500, () => {
-      try { music.pause(); } catch (e) { }
-      music.muted = true;
-    });
+// Включение музыки с плавным нарастанием
+async function playWithFade() {
+  try {
+    music.volume = 0;
+    music.muted = false;
+    await music.play();
+    fadeTo(1, 600); // плавно до 100% громкости
+    setIcon(true);
+    localStorage.setItem("music", "on"); // сохраняем состояние
+  } catch (e) {
     setIcon(false);
     localStorage.setItem("music", "off");
   }
+}
 
-  // Обработчик кнопки (вкл/выкл музыку)
-  btn.addEventListener("click", () => {
-    if (!music) return;
-    const isPlaying = !music.paused && !music.ended && music.currentTime > 0 && !music.muted && music.volume > 0.01;
-    if (isPlaying) {
-      pauseWithFade();
-    } else {
-      playWithFade();
-    }
+// Пауза музыки с плавным затуханием
+function pauseWithFade() {
+  fadeTo(0, 500, () => {
+    try { music.pause(); } catch (e) { }
+    music.muted = true;
   });
+  setIcon(false);
+  localStorage.setItem("music", "off");
+}
 
-  // При загрузке страницы восстанавливаем состояние из localStorage
-  // Но не запускаем автоматически - ждем первого взаимодействия
-  window.addEventListener("load", () => {
-    const saved = localStorage.getItem("music");
-    if (saved === "on") {
-      // Сохраняем предпочтение, но не запускаем до первого клика
-      setIcon(true);
-    } else {
-      setIcon(false);
-      if (music) {
-        music.muted = true;
-        music.volume = 0;
-      }
-    }
-  });
-
-  // Первый клик по странице - запускаем музыку автоматически
-  // Это обход ограничения браузера на автозапуск
-  function onFirstInteraction() {
-    if (firstInteractionDone) return;
-    firstInteractionDone = true;
-    
-    if (!music) return;
-    
-    // Проверяем сохраненное предпочтение
-    const saved = localStorage.getItem("music");
-    
-    // Если пользователь ранее включал музыку, запускаем её
-    if (saved === "on") {
-      playWithFade();
-    } else {
-      // Если это первый визит или музыка была выключена, запускаем автоматически
-      // и сохраняем предпочтение
-      playWithFade();
-    }
+// Обработчик кнопки (вкл/выкл музыку)
+btn.addEventListener("click", () => {
+  const isPlaying = !music.paused && !music.ended && music.currentTime > 0 && !music.muted && music.volume > 0.01;
+  if (isPlaying) {
+    pauseWithFade();
+  } else {
+    playWithFade();
   }
+});
 
-  // Обработчики первого взаимодействия
-  const interactionEvents = ['click', 'touchstart', 'keydown'];
-  interactionEvents.forEach(eventType => {
-    document.addEventListener(eventType, onFirstInteraction, { once: true });
-  });
-}
+// При загрузке страницы восстанавливаем состояние из localStorage
+window.addEventListener("load", () => {
+  const saved = localStorage.getItem("music");
+  if (saved === "on") {
+    playWithFade();
+  } else {
+    setIcon(false);
+    music.muted = true;
+    music.volume = 0;
+  }
+});
 
-// Инициализируем музыку после загрузки DOM
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initMusic);
-} else {
-  initMusic();
-}
+// Первый клик по странице (некоторые браузеры требуют взаимодействия для воспроизведения звука)
+document.addEventListener("click", function onFirstClick() {
+  if (localStorage.getItem("music") === "on" && (music.paused || music.muted)) {
+    playWithFade();
+  }
+  document.removeEventListener("click", onFirstClick);
+}, { once: true });
 
 // ============================
 // Слайдер для дресс-кода
@@ -280,148 +226,38 @@ slider.addEventListener('touchend', (e) => {
 // Добавление события в календарь (.ics файл)
 // ============================
 
-// Функция для экранирования специальных символов в .ics формате
-function escapeICS(text) {
-  if (!text) return '';
-  return String(text)
-    .replace(/\\/g, '\\\\')
-    .replace(/;/g, '\\;')
-    .replace(/,/g, '\\,')
-    .replace(/\n/g, '\\n');
-}
-
-// Функция для форматирования даты в формат YYYYMMDDTHHMMSS (локальное время)
-function formatICSDate(dateString) {
-  // Преобразуем '2026-07-24T14:20:00' в '20260724T142000'
-  // Используем локальное время (без Z), так как это более универсально
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const seconds = String(date.getSeconds()).padStart(2, '0');
-  // Возвращаем без Z для локального времени
-  return `${year}${month}${day}T${hours}${minutes}${seconds}`;
-}
-
-// Функция для создания .ics файла
-function createICSFile(event) {
-  const uid = `wedding-${Date.now()}@artem-elizaveta.wedding`;
-  const now = new Date();
-  const nowFormatted = formatICSDate(now.toISOString());
-  
-  const icsContent = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Wedding//Artem and Elizaveta//RU',
-    'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
-    'BEGIN:VEVENT',
-    `UID:${uid}`,
-    `DTSTAMP:${nowFormatted}`,
-    `DTSTART:${formatICSDate(event.start)}`,
-    `DTEND:${formatICSDate(event.end)}`,
-    `SUMMARY:${escapeICS(event.title)}`,
-    `DESCRIPTION:${escapeICS(event.description)}`,
-    `LOCATION:${escapeICS(event.address)}`,
-    'STATUS:CONFIRMED',
-    'SEQUENCE:0',
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ].join('\r\n');
-
-  return new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-}
-
-// Основная функция добавления в календарь
-async function addToCalendar() {
+document.getElementById('addToCalendar').addEventListener('click', function () {
   const event = {
     title: 'Свадьба Артёма и Елизаветы',
     start: '2026-07-24T14:20:00',
     end: '2026-07-24T22:00:00',
     address: 'Большая Монетная ул., 17, Санкт-Петербург',
-    description: 'Приглашение на свадьбу Артёма и Елизаветы. Петроградский ЗАГС в 14:20, затем банкет в Five Star Place.'
+    description: 'Приглашение на свадьбу Артёма и Елизаветы'
   };
 
-  const blob = createICSFile(event);
-  const fileName = 'Свадьба_Артема_и_Елизаветы.ics';
+  // Формируем содержимое .ics файла
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'BEGIN:VEVENT',
+    `SUMMARY:${event.title}`,
+    `DTSTART:${event.start.replace(/[-:]/g, '')}`, // убираем лишние символы
+    `DTEND:${event.end.replace(/[-:]/g, '')}`,
+    `LOCATION:${event.address}`,
+    `DESCRIPTION:${event.description}`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\n');
 
-  // Проверяем поддержку Web Share API (для мобильных устройств)
-  if (navigator.share) {
-    try {
-      // Создаем File объект для Web Share API
-      const file = new File([blob], fileName, { 
-        type: 'text/calendar;charset=utf-8' 
-      });
-
-      // Проверяем, можно ли поделиться файлом (если метод canShare доступен)
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: event.title,
-          text: event.description
-        });
-        return; // Успешно поделились, выходим
-      } else if (!navigator.canShare) {
-        // Если canShare не доступен, пробуем поделиться напрямую
-        try {
-          await navigator.share({
-            files: [file],
-            title: event.title,
-            text: event.description
-          });
-          return;
-        } catch (shareError) {
-          // Если не получилось, продолжаем с fallback
-          if (shareError.name !== 'AbortError') {
-            console.log('Web Share API не поддерживает файлы, используем fallback');
-          } else {
-            return; // Пользователь отменил
-          }
-        }
-      }
-    } catch (error) {
-      // Если пользователь отменил или произошла ошибка, продолжаем с fallback
-      if (error.name !== 'AbortError') {
-        console.log('Web Share API не доступен, используем fallback:', error);
-      } else {
-        return; // Пользователь отменил, просто выходим
-      }
-    }
-  }
-
-  // Fallback: скачивание файла (для десктопов и старых браузеров)
-  const url = URL.createObjectURL(blob);
+  // Скачиваем файл
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
   const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  link.style.display = 'none';
+  link.href = URL.createObjectURL(blob);
+  link.download = 'Свадьба_Артема_и_Елизаветы.ics';
   document.body.appendChild(link);
   link.click();
-  
-  // Очищаем после скачивания
-  setTimeout(() => {
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  }, 100);
-}
-
-// Инициализация обработчика кнопки
-document.addEventListener('DOMContentLoaded', function() {
-  const addToCalendarBtn = document.getElementById('addToCalendar');
-  if (addToCalendarBtn) {
-    addToCalendarBtn.addEventListener('click', addToCalendar);
-  }
+  document.body.removeChild(link);
 });
-
-// Дополнительная проверка на случай если DOM уже загружен
-if (document.readyState !== 'loading') {
-  const addToCalendarBtn = document.getElementById('addToCalendar');
-  if (addToCalendarBtn) {
-    addToCalendarBtn.addEventListener('click', addToCalendar);
-  }
-}
 
 // ============================
 // Обработка прелоадера (заставки)
