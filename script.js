@@ -223,76 +223,40 @@ slider.addEventListener('touchend', (e) => {
 
 
 // ============================
-// Добавление события в календарь — Android intent, Web Share, Google fallback
+// Добавление события в календарь (.ics файл)
 // ============================
 
 document.getElementById('addToCalendar').addEventListener('click', function () {
-  const title = 'Свадьба Артёма и Елизаветы';
-  const description = 'Приглашение на свадьбу Артёма и Елизаветы';
-  const location = 'Большая Монетная ул., 17, Санкт-Петербург';
-  const startISO = '2026-07-24T14:20:00';
-  const endISO = '2026-07-24T22:00:00';
+  const event = {
+    title: 'Свадьба Артёма и Елизаветы',
+    start: '2026-07-24T14:20:00',
+    end: '2026-07-24T22:00:00',
+    address: 'Большая Монетная ул., 17, Санкт-Петербург',
+    description: 'Приглашение на свадьбу Артёма и Елизаветы'
+  };
 
-  function toGoogleDates(iso) {
-    return iso.replace(/[-:]/g, '').replace(/\.\d{3}Z?/, '') + 'Z';
-  }
+  // Формируем содержимое .ics файла
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'BEGIN:VEVENT',
+    `SUMMARY:${event.title}`,
+    `DTSTART:${event.start.replace(/[-:]/g, '')}`, // убираем лишние символы
+    `DTEND:${event.end.replace(/[-:]/g, '')}`,
+    `LOCATION:${event.address}`,
+    `DESCRIPTION:${event.description}`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\n');
 
-  // 1) Android intent — открывает нативный редактор события в Android
-  if (/Android/i.test(navigator.userAgent)) {
-    try {
-      const begin = new Date(startISO).getTime();
-      const end = new Date(endISO).getTime();
-      const intent = 'intent://#Intent;' +
-        'action=android.intent.action.INSERT;' +
-        'type=vnd.android.cursor.item/event;' +
-        `S.title=${encodeURIComponent(title)};` +
-        `S.description=${encodeURIComponent(description)};` +
-        `S.eventLocation=${encodeURIComponent(location)};` +
-        `S.beginTime=${begin};` +
-        `S.endTime=${end};end`;
-      window.location.href = intent;
-      return;
-    } catch (e) { /* fallthrough */ }
-  }
-
-  // 2) Web Share (с файлами) если поддерживается
-  if (navigator.share && typeof File === 'function') {
-    try {
-      const ics = [
-        'BEGIN:VCALENDAR',
-        'VERSION:2.0',
-        'CALSCALE:GREGORIAN',
-        'BEGIN:VEVENT',
-        `SUMMARY:${title}`,
-        `DTSTART:${toGoogleDates(startISO)}`,
-        `DTEND:${toGoogleDates(endISO)}`,
-        `LOCATION:${location}`,
-        `DESCRIPTION:${description}`,
-        `UID:${Date.now()}@wedding`,
-        'END:VEVENT',
-        'END:VCALENDAR'
-      ].join('\r\n');
-
-      const blob = new Blob([ics], { type: 'text/calendar' });
-      const file = new File([blob], 'Свадьба_Артема_и_Елизаветы.ics', { type: 'text/calendar' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], title, text: description }).catch(() => {});
-        return;
-      }
-    } catch (e) { /* fallthrough */ }
-  }
-
-  // 3) Открываем Google Calendar веб-шаблон как фолбэк
-  const gUrl = 'https://www.google.com/calendar/render?action=TEMPLATE' +
-    `&text=${encodeURIComponent(title)}` +
-    `&dates=${toGoogleDates(startISO)}/${toGoogleDates(endISO)}` +
-    `&details=${encodeURIComponent(description)}` +
-    `&location=${encodeURIComponent(location)}`;
-  window.open(gUrl, '_blank');
-
-  // (опционально) последний фоллбек — скачать .ics (оставлен закомментированным)
-  // const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-  // const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='Свадьба.ics'; a.click();
+  // Скачиваем файл
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'Свадьба_Артема_и_Елизаветы.ics';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 });
 
 // ============================
