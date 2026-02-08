@@ -631,7 +631,7 @@ h3 {
   }
   /* Поднимаем индикатор прокрутки на небольших экранах, чтобы он был виден сразу */
   .hero-scroll-indicator {
-    bottom: 8vh;
+    bottom: 16vh;
   }
 }
 
@@ -2779,4 +2779,5 @@ h3 {
   .easter-text-wrap { text-align: center; }
   :root { --easter-fireworks-scale: 0.6; }
 }
+
 
