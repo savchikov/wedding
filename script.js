@@ -223,8 +223,8 @@ slider.addEventListener('touchend', (e) => {
 
 
 // ============================
-// Добавление события в календарь — более универсальный подход
-// Попытки: Android intent -> Web Share (files) -> iOS data:open -> Google/Outlook/Yahoo modal
+// Добавление события в календарь
+// Поведение: Android -> Google Calendar (если есть) / default calendar; iOS -> Apple Calendar via .ics; Desktop -> скачивание
 // ============================
 
 document.getElementById('addToCalendar').addEventListener('click', function () {
@@ -234,18 +234,18 @@ document.getElementById('addToCalendar').addEventListener('click', function () {
   const startISO = '2026-07-24T14:20:00';
   const endISO = '2026-07-24T22:00:00';
 
-  function toGoogleDates(iso) {
+  function fmtICSdate(iso) {
     return iso.replace(/[-:]/g, '').replace(/\.\d{3}Z?/, '') + 'Z';
   }
 
-  const icsString = [
+  const ics = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'CALSCALE:GREGORIAN',
     'BEGIN:VEVENT',
     `SUMMARY:${title}`,
-    `DTSTART:${toGoogleDates(startISO)}`,
-    `DTEND:${toGoogleDates(endISO)}`,
+    `DTSTART:${fmtICSdate(startISO)}`,
+    `DTEND:${fmtICSdate(endISO)}`,
     `LOCATION:${location}`,
     `DESCRIPTION:${description}`,
     `UID:${Date.now()}@wedding`,
@@ -253,105 +253,82 @@ document.getElementById('addToCalendar').addEventListener('click', function () {
     'END:VCALENDAR'
   ].join('\r\n');
 
+  // Helper to download .ics (desktop fallback)
+  function downloadIcs(content) {
+    const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Свадьба_Артема_и_Елизаветы.ics';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { try { URL.revokeObjectURL(a.href); a.remove(); } catch (e) {} }, 1000);
+  }
+
+  // URLs for web fallbacks
   const googleUrl = 'https://www.google.com/calendar/render?action=TEMPLATE' +
     `&text=${encodeURIComponent(title)}` +
-    `&dates=${toGoogleDates(startISO)}/${toGoogleDates(endISO)}` +
+    `&dates=${fmtICSdate(startISO)}/${fmtICSdate(endISO)}` +
     `&details=${encodeURIComponent(description)}` +
     `&location=${encodeURIComponent(location)}`;
 
-  const outlookUrl = 'https://outlook.office.com/calendar/0/deeplink/compose?' +
-    `subject=${encodeURIComponent(title)}` +
-    `&body=${encodeURIComponent(description)}` +
-    `&startdt=${encodeURIComponent(startISO)}` +
-    `&enddt=${encodeURIComponent(endISO)}` +
-    `&location=${encodeURIComponent(location)}`;
-
-  const yahooUrl = 'https://calendar.yahoo.com/?v=60&view=d&type=20' +
-    `&title=${encodeURIComponent(title)}` +
-    `&st=${encodeURIComponent(toGoogleDates(startISO))}` +
-    `&dur=${encodeURIComponent('0800')}` +
-    `&desc=${encodeURIComponent(description)}` +
-    `&in_loc=${encodeURIComponent(location)}`;
-
-  // 1) Android intent (best on many Android + Chrome)
+  // Android: try Google Calendar app first (explicit package), then generic calendar intent
   if (/Android/i.test(navigator.userAgent)) {
+    const begin = new Date(startISO).getTime();
+    const end = new Date(endISO).getTime();
+    // Intent targeting Google Calendar
+    const intentGoogle = 'intent://#Intent;' +
+      'action=android.intent.action.INSERT;' +
+      'type=vnd.android.cursor.item/event;' +
+      `S.title=${encodeURIComponent(title)};` +
+      `S.description=${encodeURIComponent(description)};` +
+      `S.eventLocation=${encodeURIComponent(location)};` +
+      `S.beginTime=${begin};` +
+      `S.endTime=${end};` +
+      'package=com.google.android.calendar;end';
+
+    // Generic intent (no package) to open default calendar
+    const intentGeneric = 'intent://#Intent;' +
+      'action=android.intent.action.INSERT;' +
+      'type=vnd.android.cursor.item/event;' +
+      `S.title=${encodeURIComponent(title)};` +
+      `S.description=${encodeURIComponent(description)};` +
+      `S.eventLocation=${encodeURIComponent(location)};` +
+      `S.beginTime=${begin};` +
+      `S.endTime=${end};end`;
+
+    // Try Google intent first, then fallback to generic after short timeout if not handled
     try {
-      const begin = new Date(startISO).getTime();
-      const end = new Date(endISO).getTime();
-      const intent = 'intent://#Intent;' +
-        'action=android.intent.action.INSERT;' +
-        'type=vnd.android.cursor.item/event;' +
-        `S.title=${encodeURIComponent(title)};` +
-        `S.description=${encodeURIComponent(description)};` +
-        `S.eventLocation=${encodeURIComponent(location)};` +
-        `S.beginTime=${begin};` +
-        `S.endTime=${end};end`;
-      window.location.href = intent;
-      // fallback modal if intent does nothing
-      setTimeout(() => showCalendarFallbackModal(googleUrl, outlookUrl, yahooUrl, icsString), 800);
+      let timeout = setTimeout(() => { window.location.href = intentGeneric; }, 900);
+      function clear() { clearTimeout(timeout); document.removeEventListener('visibilitychange', clear); }
+      document.addEventListener('visibilitychange', clear);
+      window.location.href = intentGoogle;
       return;
-    } catch (e) { /* continue to next */ }
+    } catch (e) {
+      // fallback to generic intent or web
+      try { window.location.href = intentGeneric; return; } catch (e) { /* fallthrough */ }
+    }
   }
 
-  // 2) Web Share (files) if available
-  if (navigator.share && typeof File === 'function') {
+  // iOS: try to open .ics so Calendar can import it (Safari usually shows Open in "Calendar")
+  if (/iPad|iPhone|iPod/i.test(navigator.userAgent)) {
     try {
-      const blob = new Blob([icsString], { type: 'text/calendar' });
-      const file = new File([blob], 'Свадьба_Артема_и_Елизаветы.ics', { type: 'text/calendar' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], title, text: description }).catch(() => {
-          showCalendarFallbackModal(googleUrl, outlookUrl, yahooUrl, icsString);
-        });
-        return;
-      }
-    } catch (e) { /* continue */ }
-  }
-
-  // 3) iOS: try opening data: URL which sometimes prompts "Open in Calendar"
-  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
-    try {
-      const dataUrl = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsString);
-      window.open(dataUrl, '_blank');
-      setTimeout(() => showCalendarFallbackModal(googleUrl, outlookUrl, yahooUrl, icsString), 900);
+      const blob = new Blob([ics], { type: 'text/calendar' });
+      const url = URL.createObjectURL(blob);
+      // Open in same tab to trigger Safari handling
+      window.location.href = url;
+      setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 2000);
       return;
-    } catch (e) { /* continue */ }
+    } catch (e) {
+      // fallback to Google web calendar
+      window.open(googleUrl, '_blank');
+      return;
+    }
   }
 
-  // 4) Desktop: open Google Calendar and also show modal
-  window.open(googleUrl, '_blank');
-  setTimeout(() => showCalendarFallbackModal(googleUrl, outlookUrl, yahooUrl, icsString), 600);
+  // Desktop: download .ics (seamless add not possible reliably)
+  downloadIcs(ics);
 });
-
-function showCalendarFallbackModal(googleUrl, outlookUrl, yahooUrl, icsString) {
-  if (document.getElementById('calFallbackModal')) return;
-  const modal = document.createElement('div');
-  modal.id = 'calFallbackModal';
-  Object.assign(modal.style, { position: 'fixed', inset: '0', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 99999 });
-  const box = document.createElement('div');
-  Object.assign(box.style, { background: '#fff', padding: '18px', borderRadius: '8px', maxWidth: '420px', width: '90%', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' });
-  box.innerHTML = `<h3 style="margin:0 0 10px 0">Добавить событие</h3><p style="margin:0 0 12px 0">Выберите куда добавить событие:</p>`;
-  function makeBtn(text, cb) {
-    const b = document.createElement('button');
-    b.textContent = text; Object.assign(b.style, { margin: '6px 6px 0 0', padding: '8px 12px', border: 'none', background: '#EA785B', color: '#fff', borderRadius: '6px' });
-    b.addEventListener('click', cb);
-    return b;
-  }
-  const googleBtn = makeBtn('Открыть в Google Calendar', () => { window.open(googleUrl, '_blank'); remove(); });
-  const outlookBtn = makeBtn('Открыть в Outlook', () => { window.open(outlookUrl, '_blank'); remove(); });
-  const yahooBtn = makeBtn('Открыть в Yahoo', () => { window.open(yahooUrl, '_blank'); remove(); });
-  const downloadBtn = makeBtn('Скачать .ics и открыть', () => { downloadIcs(icsString); remove(); });
-  const cancel = document.createElement('button'); cancel.textContent = 'Отмена'; Object.assign(cancel.style, { margin: '6px 0 0 0', padding: '8px 12px' }); cancel.addEventListener('click', remove);
-  const row = document.createElement('div'); row.style.display = 'flex'; row.style.flexWrap = 'wrap';
-  row.appendChild(googleBtn); row.appendChild(outlookBtn); row.appendChild(yahooBtn); row.appendChild(downloadBtn);
-  box.appendChild(row); box.appendChild(cancel); modal.appendChild(box); document.body.appendChild(modal);
-  function remove() { try { modal.remove(); } catch (e) {} }
-}
-
-function downloadIcs(icsString) {
-  const blob = new Blob([icsString], { type: 'text/calendar' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'Свадьба_Артема_и_Елизаветы.ics'; a.style.display = 'none'; document.body.appendChild(a); a.click(); setTimeout(() => { try { URL.revokeObjectURL(url); a.remove(); } catch (e) {} }, 1000);
-}
 
 // ============================
 // Обработка прелоадера (заставки)
