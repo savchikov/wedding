@@ -272,42 +272,22 @@ document.getElementById('addToCalendar').addEventListener('click', function () {
     `&details=${encodeURIComponent(description)}` +
     `&location=${encodeURIComponent(location)}`;
 
-  // Android: try Google Calendar app first (explicit package), then generic calendar intent
+  // Android: use generic INSERT intent (no package) so system opens calendar app or chooser
   if (/Android/i.test(navigator.userAgent)) {
-    const begin = new Date(startISO).getTime();
-    const end = new Date(endISO).getTime();
-    // Intent targeting Google Calendar
-    const intentGoogle = 'intent://#Intent;' +
-      'action=android.intent.action.INSERT;' +
-      'type=vnd.android.cursor.item/event;' +
-      `S.title=${encodeURIComponent(title)};` +
-      `S.description=${encodeURIComponent(description)};` +
-      `S.eventLocation=${encodeURIComponent(location)};` +
-      `S.beginTime=${begin};` +
-      `S.endTime=${end};` +
-      'package=com.google.android.calendar;end';
-
-    // Generic intent (no package) to open default calendar
-    const intentGeneric = 'intent://#Intent;' +
-      'action=android.intent.action.INSERT;' +
-      'type=vnd.android.cursor.item/event;' +
-      `S.title=${encodeURIComponent(title)};` +
-      `S.description=${encodeURIComponent(description)};` +
-      `S.eventLocation=${encodeURIComponent(location)};` +
-      `S.beginTime=${begin};` +
-      `S.endTime=${end};end`;
-
-    // Try Google intent first, then fallback to generic after short timeout if not handled
     try {
-      let timeout = setTimeout(() => { window.location.href = intentGeneric; }, 900);
-      function clear() { clearTimeout(timeout); document.removeEventListener('visibilitychange', clear); }
-      document.addEventListener('visibilitychange', clear);
-      window.location.href = intentGoogle;
+      const begin = new Date(startISO).getTime();
+      const end = new Date(endISO).getTime();
+      const intent = 'intent://#Intent;' +
+        'action=android.intent.action.INSERT;' +
+        'type=vnd.android.cursor.item/event;' +
+        `S.title=${encodeURIComponent(title)};` +
+        `S.description=${encodeURIComponent(description)};` +
+        `S.eventLocation=${encodeURIComponent(location)};` +
+        `S.beginTime=${begin};` +
+        `S.endTime=${end};end`;
+      window.location.href = intent;
       return;
-    } catch (e) {
-      // fallback to generic intent or web
-      try { window.location.href = intentGeneric; return; } catch (e) { /* fallthrough */ }
-    }
+    } catch (e) { /* fallthrough to web fallback */ }
   }
 
   // iOS: try to open .ics so Calendar can import it (Safari usually shows Open in "Calendar")
