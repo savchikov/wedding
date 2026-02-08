@@ -223,96 +223,75 @@ slider.addEventListener('touchend', (e) => {
 
 
 // ============================
-// Добавление события в календарь
+// Добавление события в календарь — улучшенная версия с поддержкой Web Share
 // ============================
+
 document.getElementById('addToCalendar').addEventListener('click', function () {
-  const rawEvent = {
+  const event = {
     title: 'Свадьба Артёма и Елизаветы',
-    startArr: [2026, 7, 24, 14, 20],
-    endArr: [2026, 7, 24, 22, 0],
+    start: new Date('2026-07-24T14:20:00'),
+    end: new Date('2026-07-24T22:00:00'),
     location: 'Большая Монетная ул., 17, Санкт-Петербург',
     description: 'Приглашение на свадьбу Артёма и Елизаветы'
   };
 
-  // helper: open blob via share or by clicking link (no download attr)
-  function openIcsBlob(blob, filename) {
-    try {
-      const file = new File([blob], filename, { type: 'text/calendar' });
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], title: rawEvent.title }).catch(() => {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.style.display = 'none';
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(() => { URL.revokeObjectURL(url); try { a.remove(); } catch (e) {} }, 1500);
-        });
-        return;
-      }
-    } catch (e) { /* fallthrough to link click fallback */ }
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { URL.revokeObjectURL(url); try { a.remove(); } catch (e) {} }, 1500);
+  function formatDateForICS(date) {
+    return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   }
 
-  // Попытка использовать библиотеку ics (через CDN: window.ics or shim window.icsCreate)
-  const createEventFn = (typeof window.icsCreate === 'function') ? window.icsCreate : (window.ics && typeof window.ics.createEvent === 'function' ? window.ics.createEvent.bind(window.ics) : null);
-
-  if (createEventFn) {
-    const ev = {
-      title: rawEvent.title,
-      start: rawEvent.startArr,
-      end: rawEvent.endArr,
-      location: rawEvent.location,
-      description: rawEvent.description,
-      prodId: 'wedding-2026'
-    };
-
-    // createEvent from library: (error, value)
-    try {
-      createEventFn(ev, (error, value) => {
-        if (error) {
-          // fallback to data URL
-          const dataUrl = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(value || '');
-          window.location.href = dataUrl;
-          return;
-        }
-
-        const blob = new Blob([value], { type: 'text/calendar;charset=utf-8' });
-        openIcsBlob(blob, 'Свадьба_Артема_и_Елизаветы.ics');
-      });
-      return;
-    } catch (e) {
-      // fallthrough to manual creation
-    }
-  }
-
-  // Если библиотека не доступна — формируем .ics вручную и открываем через data URL
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Wedding//Wedding//EN',
     'CALSCALE:GREGORIAN',
     'BEGIN:VEVENT',
-    `UID:wedding-artemov-elizaveta-2026@example.com`,
-    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
-    `DTSTART:${String(rawEvent.startArr[0]).padStart(4,'0')}${String(rawEvent.startArr[1]).padStart(2,'0')}${String(rawEvent.startArr[2]).padStart(2,'0')}T${String(rawEvent.startArr[3]).padStart(2,'0')}${String(rawEvent.startArr[4]).padStart(2,'0')}00Z`,
-    `DTEND:${String(rawEvent.endArr[0]).padStart(4,'0')}${String(rawEvent.endArr[1]).padStart(2,'0')}${String(rawEvent.endArr[2]).padStart(2,'0')}T${String(rawEvent.endArr[3]).padStart(2,'0')}${String(rawEvent.endArr[4]).padStart(2,'0')}00Z`,
-    `SUMMARY:${rawEvent.title}`,
-    `LOCATION:${rawEvent.location}`,
-    `DESCRIPTION:${rawEvent.description}`,
+    `SUMMARY:${event.title}`,
+    `DTSTART:${formatDateForICS(event.start)}`,
+    `DTEND:${formatDateForICS(event.end)}`,
+    `LOCATION:${event.location}`,
+    `DESCRIPTION:${event.description}`,
+    'UID:' + Date.now() + '@wedding',
+    'SEQUENCE:0',
+    'STATUS:CONFIRMED',
+    'TRANSP:OPAQUE',
     'END:VEVENT',
     'END:VCALENDAR'
   ].join('\r\n');
 
+  // Попробовать Web Share API (с файлами)
+  if (navigator.share && typeof File === 'function') {
+    try {
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const file = new File([blob], 'Свадьба_Артема_и_Елизаветы.ics', { type: 'text/calendar' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file], title: 'Добавить в календарь', text: event.title }).catch(console.error);
+        return;
+      }
+    } catch (e) {
+      // fall through to other methods
+    }
+  }
+
+  // Специальный кейс для старых iOS — открыть в новой вкладке
+  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(() => { URL.revokeObjectURL(url); }, 2000);
+    return;
+  }
+
+  // Фоллбек для десктопа и остальных — предложить скачивание
   const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-  openIcsBlob(blob, 'Свадьба_Артема_и_Елизаветы.ics');
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'Свадьба_Артема_и_Елизаветы.ics';
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  setTimeout(() => {
+    try { document.body.removeChild(link); } catch (e) {}
+    try { URL.revokeObjectURL(link.href); } catch (e) {}
+  }, 100);
 });
 
 // ============================
