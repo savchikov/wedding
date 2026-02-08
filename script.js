@@ -243,8 +243,8 @@ document.getElementById('addToCalendar').addEventListener('click', function () {
   const isAndroid = /Android/.test(navigator.userAgent);
 
   if (isIOS || isAndroid) {
-    // Для мобильных (iOS и Android): скачиваем .ics файл
-    // Встроенный календарь телефона автоматически предложит добавить событие
+    // Для мобильных (iOS и Android): открываем встроенный календарь
+    // Без атрибута download браузер откроет файл в приложении вместо скачивания
     const icsContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
@@ -263,11 +263,11 @@ document.getElementById('addToCalendar').addEventListener('click', function () {
       'END:VCALENDAR'
     ].join('\r\n');
 
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
+    // Используем data URL для прямого открытия в приложении календаря
+    const dataUrl = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
     const link = document.createElement('a');
-    link.href = url;
-    link.download = 'wedding.ics';
+    link.href = dataUrl;
+    // БЕЗ атрибута download - браузер откроет в приложении вместо скачивания
     link.click();
   } else {
     // Для Desktop: Google Calendar (работает без установки приложений)
