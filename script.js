@@ -223,41 +223,85 @@ slider.addEventListener('touchend', (e) => {
 
 
 // ============================
-// Добавление события в календарь (.ics файл)
+// Добавление события в календарь
+// Android: open Google Calendar link
+// iOS: open .ics (Calendar can import)
+// Desktop: download .ics
 // ============================
 
-document.getElementById('addToCalendar').addEventListener('click', function () {
-  const event = {
-    title: 'Свадьба Артёма и Елизаветы',
-    start: '2026-07-24T14:20:00',
-    end: '2026-07-24T22:00:00',
-    address: 'Большая Монетная ул., 17, Санкт-Петербург',
-    description: 'Приглашение на свадьбу Артёма и Елизаветы'
-  };
+const addToCalBtn = document.getElementById('addToCalendar');
+if (addToCalBtn) {
+  addToCalBtn.addEventListener('click', function () {
+    const title = 'Свадьба Артёма и Елизаветы';
+    const description = 'Приглашение на свадьбу Артёма и Елизаветы';
+    const location = 'Большая Монетная ул., 17, Санкт-Петербург';
+    const start = new Date('2026-07-24T14:20:00');
+    const end = new Date('2026-07-24T22:00:00');
 
-  // Формируем содержимое .ics файла
-  const icsContent = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'BEGIN:VEVENT',
-    `SUMMARY:${event.title}`,
-    `DTSTART:${event.start.replace(/[-:]/g, '')}`, // убираем лишние символы
-    `DTEND:${event.end.replace(/[-:]/g, '')}`,
-    `LOCATION:${event.address}`,
-    `DESCRIPTION:${event.description}`,
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ].join('\n');
+    // Use UTC ISO format without separators for Google Calendar (YYYYMMDDTHHMMSSZ)
+    function toGoogleDt(d) {
+      return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    }
 
-  // Скачиваем файл
-  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'Свадьба_Артема_и_Елизаветы.ics';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-});
+    const startG = toGoogleDt(start);
+    const endG = toGoogleDt(end);
+
+    const googleUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startG}/${endG}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(location)}`;
+
+    // iOS detection
+    const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+
+    // Prepare .ics content
+    const icsLines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'CALSCALE:GREGORIAN',
+      'BEGIN:VEVENT',
+      `UID:${Date.now()}@wedding`,
+      `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}Z`,
+      `DTSTART:${startG}Z`,
+      `DTEND:${endG}Z`,
+      `SUMMARY:${title}`,
+      `LOCATION:${location}`,
+      `DESCRIPTION:${description}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ];
+    const icsContent = icsLines.join('\r\n');
+
+    // Android: open Google Calendar web link (works in browser and often opens app)
+    if (isAndroid) {
+      window.open(googleUrl, '_blank');
+      return;
+    }
+
+    // iOS: open .ics blob so Safari offers to import into Calendar
+    if (isIOS) {
+      try {
+        const blob = new Blob([icsContent], { type: 'text/calendar' });
+        const url = URL.createObjectURL(blob);
+        // open in same tab to trigger import dialog
+        window.location.href = url;
+        setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 2000);
+        return;
+      } catch (e) {
+        // fallback to google link
+        window.open(googleUrl, '_blank');
+        return;
+      }
+    }
+
+    // Desktop: download .ics
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'Свадьба_Артема_и_Елизаветы.ics';
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => { try { document.body.removeChild(link); URL.revokeObjectURL(link.href); } catch (e) {} }, 500);
+  });
+}
 
 // ============================
 // Обработка прелоадера (заставки)
