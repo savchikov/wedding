@@ -223,7 +223,7 @@ slider.addEventListener('touchend', (e) => {
 
 
 // ============================
-// Добавление события в календарь
+// Добавление события в календарь (.ics файл)
 // ============================
 
 document.getElementById('addToCalendar').addEventListener('click', function () {
@@ -235,45 +235,28 @@ document.getElementById('addToCalendar').addEventListener('click', function () {
     description: 'Приглашение на свадьбу Артёма и Елизаветы'
   };
 
-  const startDateTime = event.start.replace(/[-:]/g, '');
-  const endDateTime = event.end.replace(/[-:]/g, '');
+  // Формируем содержимое .ics файла
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'BEGIN:VEVENT',
+    `SUMMARY:${event.title}`,
+    `DTSTART:${event.start.replace(/[-:]/g, '')}`, // убираем лишние символы
+    `DTEND:${event.end.replace(/[-:]/g, '')}`,
+    `LOCATION:${event.address}`,
+    `DESCRIPTION:${event.description}`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\n');
 
-  // Определяем платформу
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const isAndroid = /Android/.test(navigator.userAgent);
-
-  if (isIOS || isAndroid) {
-    // Для мобильных (iOS и Android): открываем встроенный календарь
-    // Без атрибута download браузер откроет файл в приложении вместо скачивания
-    const icsContent = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Wedding//Wedding//EN',
-      'CALSCALE:GREGORIAN',
-      'METHOD:PUBLISH',
-      'BEGIN:VEVENT',
-      'UID:wedding-artemov-elizaveta-2026@example.com',
-      `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
-      `DTSTART:${startDateTime}Z`,
-      `DTEND:${endDateTime}Z`,
-      `SUMMARY:${event.title}`,
-      `LOCATION:${event.address}`,
-      `DESCRIPTION:${event.description}`,
-      'END:VEVENT',
-      'END:VCALENDAR'
-    ].join('\r\n');
-
-    // Используем data URL для прямого открытия в приложении календаря
-    const dataUrl = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    // БЕЗ атрибута download - браузер откроет в приложении вместо скачивания
-    link.click();
-  } else {
-    // Для Desktop: Google Calendar (работает без установки приложений)
-    const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${startDateTime}/${endDateTime}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(event.address)}`;
-    window.open(googleCalendarUrl, '_blank');
-  }
+  // Скачиваем файл
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'Свадьба_Артема_и_Елизаветы.ics';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 });
 
 // ============================
