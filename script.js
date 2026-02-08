@@ -149,25 +149,44 @@ btn.addEventListener("click", () => {
   }
 });
 
-// При загрузке страницы восстанавливаем состояние из localStorage
-window.addEventListener("load", () => {
+// При загрузке пытаемся запустить воспроизведение в muted-режиме (это разрешено в большинстве браузеров),
+// затем по первому жесту пользователя размьючиваем и делаем fade-in если пользователь ранее включал музыку.
+window.addEventListener("load", async () => {
   const saved = localStorage.getItem("music");
-  if (saved === "on") {
-    playWithFade();
-  } else {
+  if (saved === "off") {
+    setIcon(false);
+    music.muted = true;
+    music.volume = 0;
+    return;
+  }
+
+  try {
+    // Гарантируем muted перед автозапуском — это повышает шансы на успешный autoplay
+    music.muted = true;
+    music.volume = 0;
+    await music.play(); // muted autoplay обычно разрешён
+    setIcon(false);
+
+    // Если раньше пользователь включал музыку — размьючиваем на первом взаимодействии
+    if (saved === "on") {
+      const onGesture = () => {
+        try {
+          music.muted = false;
+          fadeTo(1, 600);
+          setIcon(true);
+          localStorage.setItem("music", "on");
+        } catch (err) {}
+      };
+      document.addEventListener('click', onGesture, { once: true });
+      document.addEventListener('touchstart', onGesture, { once: true });
+    }
+  } catch (e) {
+    // Если даже muted-autoplay заблокирован — оставляем звук выключенным
     setIcon(false);
     music.muted = true;
     music.volume = 0;
   }
 });
-
-// Первый клик по странице (некоторые браузеры требуют взаимодействия для воспроизведения звука)
-document.addEventListener("click", function onFirstClick() {
-  if (localStorage.getItem("music") === "on" && (music.paused || music.muted)) {
-    playWithFade();
-  }
-  document.removeEventListener("click", onFirstClick);
-}, { once: true });
 
 // ============================
 // Слайдер для дресс-кода
@@ -342,9 +361,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!closed) { closed = true; clearTimeout(timer); closeOverlay(); }
       }
     });
-    // Manual close by clicking the preloader content itself
+    // Manual close by clicking the preloader content itself — start music as if user pressed the music button
     preloader.addEventListener('click', () => {
-      if (!closed) { closed = true; clearTimeout(timer); closeOverlay(); }
+      if (!closed) {
+        closed = true;
+        clearTimeout(timer);
+        try { playWithFade(); } catch (e) { /* ignore */ }
+        closeOverlay();
+      }
     }, { once: true });
     // ESC close
     document.addEventListener('keydown', function escHandler(e) {
