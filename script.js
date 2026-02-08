@@ -223,40 +223,37 @@ slider.addEventListener('touchend', (e) => {
 
 
 // ============================
-// Добавление события в календарь (.ics файл)
+// Добавление события в календарь
 // ============================
 
 document.getElementById('addToCalendar').addEventListener('click', function () {
   const event = {
     title: 'Свадьба Артёма и Елизаветы',
-    start: '2026-07-24T14:20:00',
-    end: '2026-07-24T22:00:00',
-    address: 'Большая Монетная ул., 17, Санкт-Петербург',
+    start: '20260724T142000',
+    end: '20260724T220000',
+    location: 'Большая Монетная ул., 17, Санкт-Петербург',
     description: 'Приглашение на свадьбу Артёма и Елизаветы'
   };
 
-  // Формируем содержимое .ics файла
+  // Создаем .ics содержимое
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
+    'PRODID:-//Wedding//Wedding//EN',
     'BEGIN:VEVENT',
     `SUMMARY:${event.title}`,
-    `DTSTART:${event.start.replace(/[-:]/g, '')}`, // убираем лишние символы
-    `DTEND:${event.end.replace(/[-:]/g, '')}`,
-    `LOCATION:${event.address}`,
+    `DTSTART:${event.start}`,
+    `DTEND:${event.end}`,
+    `LOCATION:${event.location}`,
     `DESCRIPTION:${event.description}`,
     'END:VEVENT',
     'END:VCALENDAR'
   ].join('\n');
 
-  // Скачиваем файл
-  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'Свадьба_Артема_и_Елизаветы.ics';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  // Используем data URL для прямого открытия в приложении календаря
+  // без скачивания файла
+  const dataUrl = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
+  window.location.href = dataUrl;
 });
 
 // ============================
