@@ -422,16 +422,6 @@
   </audio>
   
   <!-- Подключение JS -->
-  <!-- CDN for ics library (used to create .ics programmatically) -->
-  <script src="https://unpkg.com/ics@2.31.0/dist/index.min.js"></script>
-  <script>
-    // expose createEvent under window.icsCreate if library provides different export
-    try {
-      if (window.ics && typeof window.ics.createEvent === 'function') {
-        window.icsCreate = window.ics.createEvent.bind(window.ics);
-      }
-    } catch (e) { /* ignore */ }
-  </script>
   <script src="script.js"></script>
   <!-- После подключения основного script.js -->
   <script src="config.js"></script>
