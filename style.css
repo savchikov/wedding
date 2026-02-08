@@ -671,6 +671,11 @@ h3 {
   padding: 40px 30px !important;
 }
 
+/* Отступ перед анкетой в разделе присутствия */
+.attendance-form {
+  margin-top: 24px;
+}
+
 .torn-edge p {
   text-align: center;
 }
@@ -2779,5 +2784,3 @@ h3 {
   .easter-text-wrap { text-align: center; }
   :root { --easter-fireworks-scale: 0.6; }
 }
-
-
