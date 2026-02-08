@@ -223,91 +223,40 @@ slider.addEventListener('touchend', (e) => {
 
 
 // ============================
-// Добавление события в календарь
-// Поведение: Android -> Google Calendar (если есть) / default calendar; iOS -> Apple Calendar via .ics; Desktop -> скачивание
+// Добавление события в календарь (.ics файл)
 // ============================
 
 document.getElementById('addToCalendar').addEventListener('click', function () {
-  const title = 'Свадьба Артёма и Елизаветы';
-  const description = 'Приглашение на свадьбу Артёма и Елизаветы';
-  const location = 'Большая Монетная ул., 17, Санкт-Петербург';
-  const startISO = '2026-07-24T14:20:00';
-  const endISO = '2026-07-24T22:00:00';
+  const event = {
+    title: 'Свадьба Артёма и Елизаветы',
+    start: '2026-07-24T14:20:00',
+    end: '2026-07-24T22:00:00',
+    address: 'Большая Монетная ул., 17, Санкт-Петербург',
+    description: 'Приглашение на свадьбу Артёма и Елизаветы'
+  };
 
-  function fmtICSdate(iso) {
-    return iso.replace(/[-:]/g, '').replace(/\.\d{3}Z?/, '') + 'Z';
-  }
-
-  const ics = [
+  // Формируем содержимое .ics файла
+  const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'CALSCALE:GREGORIAN',
     'BEGIN:VEVENT',
-    `SUMMARY:${title}`,
-    `DTSTART:${fmtICSdate(startISO)}`,
-    `DTEND:${fmtICSdate(endISO)}`,
-    `LOCATION:${location}`,
-    `DESCRIPTION:${description}`,
-    `UID:${Date.now()}@wedding`,
+    `SUMMARY:${event.title}`,
+    `DTSTART:${event.start.replace(/[-:]/g, '')}`, // убираем лишние символы
+    `DTEND:${event.end.replace(/[-:]/g, '')}`,
+    `LOCATION:${event.address}`,
+    `DESCRIPTION:${event.description}`,
     'END:VEVENT',
     'END:VCALENDAR'
-  ].join('\r\n');
+  ].join('\n');
 
-  // Helper to download .ics (desktop fallback)
-  function downloadIcs(content) {
-    const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'Свадьба_Артема_и_Елизаветы.ics';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { try { URL.revokeObjectURL(a.href); a.remove(); } catch (e) {} }, 1000);
-  }
-
-  // URLs for web fallbacks
-  const googleUrl = 'https://www.google.com/calendar/render?action=TEMPLATE' +
-    `&text=${encodeURIComponent(title)}` +
-    `&dates=${fmtICSdate(startISO)}/${fmtICSdate(endISO)}` +
-    `&details=${encodeURIComponent(description)}` +
-    `&location=${encodeURIComponent(location)}`;
-
-  // Android: use generic INSERT intent (no package) so system opens calendar app or chooser
-  if (/Android/i.test(navigator.userAgent)) {
-    try {
-      const begin = new Date(startISO).getTime();
-      const end = new Date(endISO).getTime();
-      const intent = 'intent://#Intent;' +
-        'action=android.intent.action.INSERT;' +
-        'type=vnd.android.cursor.item/event;' +
-        `S.title=${encodeURIComponent(title)};` +
-        `S.description=${encodeURIComponent(description)};` +
-        `S.eventLocation=${encodeURIComponent(location)};` +
-        `S.beginTime=${begin};` +
-        `S.endTime=${end};end`;
-      window.location.href = intent;
-      return;
-    } catch (e) { /* fallthrough to web fallback */ }
-  }
-
-  // iOS: try to open .ics so Calendar can import it (Safari usually shows Open in "Calendar")
-  if (/iPad|iPhone|iPod/i.test(navigator.userAgent)) {
-    try {
-      const blob = new Blob([ics], { type: 'text/calendar' });
-      const url = URL.createObjectURL(blob);
-      // Open in same tab to trigger Safari handling
-      window.location.href = url;
-      setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 2000);
-      return;
-    } catch (e) {
-      // fallback to Google web calendar
-      window.open(googleUrl, '_blank');
-      return;
-    }
-  }
-
-  // Desktop: download .ics (seamless add not possible reliably)
-  downloadIcs(ics);
+  // Скачиваем файл
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'Свадьба_Артема_и_Елизаветы.ics';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 });
 
 // ============================
