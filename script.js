@@ -223,75 +223,76 @@ slider.addEventListener('touchend', (e) => {
 
 
 // ============================
-// Добавление события в календарь — улучшенная версия с поддержкой Web Share
+// Добавление события в календарь — Android intent, Web Share, Google fallback
 // ============================
 
 document.getElementById('addToCalendar').addEventListener('click', function () {
-  const event = {
-    title: 'Свадьба Артёма и Елизаветы',
-    start: new Date('2026-07-24T14:20:00'),
-    end: new Date('2026-07-24T22:00:00'),
-    location: 'Большая Монетная ул., 17, Санкт-Петербург',
-    description: 'Приглашение на свадьбу Артёма и Елизаветы'
-  };
+  const title = 'Свадьба Артёма и Елизаветы';
+  const description = 'Приглашение на свадьбу Артёма и Елизаветы';
+  const location = 'Большая Монетная ул., 17, Санкт-Петербург';
+  const startISO = '2026-07-24T14:20:00';
+  const endISO = '2026-07-24T22:00:00';
 
-  function formatDateForICS(date) {
-    return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  function toGoogleDates(iso) {
+    return iso.replace(/[-:]/g, '').replace(/\.\d{3}Z?/, '') + 'Z';
   }
 
-  const icsContent = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'CALSCALE:GREGORIAN',
-    'BEGIN:VEVENT',
-    `SUMMARY:${event.title}`,
-    `DTSTART:${formatDateForICS(event.start)}`,
-    `DTEND:${formatDateForICS(event.end)}`,
-    `LOCATION:${event.location}`,
-    `DESCRIPTION:${event.description}`,
-    'UID:' + Date.now() + '@wedding',
-    'SEQUENCE:0',
-    'STATUS:CONFIRMED',
-    'TRANSP:OPAQUE',
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ].join('\r\n');
+  // 1) Android intent — открывает нативный редактор события в Android
+  if (/Android/i.test(navigator.userAgent)) {
+    try {
+      const begin = new Date(startISO).getTime();
+      const end = new Date(endISO).getTime();
+      const intent = 'intent://#Intent;' +
+        'action=android.intent.action.INSERT;' +
+        'type=vnd.android.cursor.item/event;' +
+        `S.title=${encodeURIComponent(title)};` +
+        `S.description=${encodeURIComponent(description)};` +
+        `S.eventLocation=${encodeURIComponent(location)};` +
+        `S.beginTime=${begin};` +
+        `S.endTime=${end};end`;
+      window.location.href = intent;
+      return;
+    } catch (e) { /* fallthrough */ }
+  }
 
-  // Попробовать Web Share API (с файлами)
+  // 2) Web Share (с файлами) если поддерживается
   if (navigator.share && typeof File === 'function') {
     try {
-      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const ics = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'CALSCALE:GREGORIAN',
+        'BEGIN:VEVENT',
+        `SUMMARY:${title}`,
+        `DTSTART:${toGoogleDates(startISO)}`,
+        `DTEND:${toGoogleDates(endISO)}`,
+        `LOCATION:${location}`,
+        `DESCRIPTION:${description}`,
+        `UID:${Date.now()}@wedding`,
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+
+      const blob = new Blob([ics], { type: 'text/calendar' });
       const file = new File([blob], 'Свадьба_Артема_и_Елизаветы.ics', { type: 'text/calendar' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], title: 'Добавить в календарь', text: event.title }).catch(console.error);
+        navigator.share({ files: [file], title, text: description }).catch(() => {});
         return;
       }
-    } catch (e) {
-      // fall through to other methods
-    }
+    } catch (e) { /* fallthrough */ }
   }
 
-  // Специальный кейс для старых iOS — открыть в новой вкладке
-  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
-    const blob = new Blob([icsContent], { type: 'text/calendar' });
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-    setTimeout(() => { URL.revokeObjectURL(url); }, 2000);
-    return;
-  }
+  // 3) Открываем Google Calendar веб-шаблон как фолбэк
+  const gUrl = 'https://www.google.com/calendar/render?action=TEMPLATE' +
+    `&text=${encodeURIComponent(title)}` +
+    `&dates=${toGoogleDates(startISO)}/${toGoogleDates(endISO)}` +
+    `&details=${encodeURIComponent(description)}` +
+    `&location=${encodeURIComponent(location)}`;
+  window.open(gUrl, '_blank');
 
-  // Фоллбек для десктопа и остальных — предложить скачивание
-  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'Свадьба_Артема_и_Елизаветы.ics';
-  link.style.display = 'none';
-  document.body.appendChild(link);
-  link.click();
-  setTimeout(() => {
-    try { document.body.removeChild(link); } catch (e) {}
-    try { URL.revokeObjectURL(link.href); } catch (e) {}
-  }, 100);
+  // (опционально) последний фоллбек — скачать .ics (оставлен закомментированным)
+  // const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  // const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='Свадьба.ics'; a.click();
 });
 
 // ============================
