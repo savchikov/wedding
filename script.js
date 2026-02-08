@@ -223,7 +223,7 @@ slider.addEventListener('touchend', (e) => {
 
 
 // ============================
-// Добавление события в календарь (.ics файл)
+// Добавление события в календарь
 // ============================
 
 document.getElementById('addToCalendar').addEventListener('click', function () {
@@ -235,28 +235,45 @@ document.getElementById('addToCalendar').addEventListener('click', function () {
     description: 'Приглашение на свадьбу Артёма и Елизаветы'
   };
 
-  // Формируем содержимое .ics файла
-  const icsContent = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'BEGIN:VEVENT',
-    `SUMMARY:${event.title}`,
-    `DTSTART:${event.start.replace(/[-:]/g, '')}`, // убираем лишние символы
-    `DTEND:${event.end.replace(/[-:]/g, '')}`,
-    `LOCATION:${event.address}`,
-    `DESCRIPTION:${event.description}`,
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ].join('\n');
+  const startDateTime = event.start.replace(/[-:]/g, '');
+  const endDateTime = event.end.replace(/[-:]/g, '');
 
-  // Скачиваем файл
-  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'Свадьба_Артема_и_Елизаветы.ics';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  // Определяем платформу
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+
+  if (isIOS || isAndroid) {
+    // Для мобильных (iOS и Android): скачиваем .ics файл
+    // Встроенный календарь телефона автоматически предложит добавить событие
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Wedding//Wedding//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      'UID:wedding-artemov-elizaveta-2026@example.com',
+      `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
+      `DTSTART:${startDateTime}Z`,
+      `DTEND:${endDateTime}Z`,
+      `SUMMARY:${event.title}`,
+      `LOCATION:${event.address}`,
+      `DESCRIPTION:${event.description}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'wedding.ics';
+    link.click();
+  } else {
+    // Для Desktop: Google Calendar (работает без установки приложений)
+    const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${startDateTime}/${endDateTime}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(event.address)}`;
+    window.open(googleCalendarUrl, '_blank');
+  }
 });
 
 // ============================
