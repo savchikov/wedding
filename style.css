@@ -288,7 +288,7 @@ h3 {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
+  
   width: 100vw;
   max-width: none; 
   margin-left: calc(50% - 50vw);
@@ -536,7 +536,7 @@ h3 {
   .hero {
     background-attachment: scroll !important;
     background-position: center center !important;
-    transform: none !important;
+    
     will-change: auto;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
