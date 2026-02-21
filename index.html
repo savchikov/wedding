@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23EA785B'/><stop offset='100%' stop-color='%235F5420'/></linearGradient></defs><g fill='none' stroke='url(%23grad)' stroke-width='2.5'><circle cx='35' cy='50' r='11'/><circle cx='65' cy='50' r='11'/></g><g fill='url(%23grad)'><circle cx='35' cy='50' r='3.5'/><circle cx='65' cy='50' r='3.5'/></g><path d='M38 50 L62 50' stroke='url(%23grad)' stroke-width='1.2' stroke-linecap='round'/><path d='M35 47 L38 50 L35 53' stroke='url(%23grad)' stroke-width='1.2' fill='none'/><path d='M65 47 L62 50 L65 53' stroke='url(%23grad)' stroke-width='1.2' fill='none'/></svg>" type="image/svg+xml">
+
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#EBD4CB">
+  
+  <!-- Заголовок страницы -->
+  <title>Свадьба Артёма и Елизаветы</title>
+  
+  <!-- Минимальные inline-стили для первого прелоадера (должны идти до style.css) -->
+  <style>
+    /* Пустой overlay сразу виден до загрузки основного CSS */
+    #preloaderOverlay { position: fixed; inset: 0; background: var(--bg, #EBD4CB); display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.45s ease; }
+    /* Скрыт второй этап до готовности шрифта */
+    #preloaderOverlay .preloader-stage2 { opacity: 0; visibility: hidden; }
+    #preloaderOverlay.stage2-ready .preloader-stage2 { opacity: 1; visibility: visible; transition: opacity 0.6s ease; }
+    /* Полное скрытие overlay после закрытия */
+    #preloaderOverlay.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+    /* Блокируем скролл пока overlay активен */
+    html.preloader-active { overflow: hidden; height: 100%; }
+  </style>
+  <!-- Подключение CSS -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Оптимизация порядка загрузки контента -->
+  <!-- 1. Photo1 (фон hero секции) - загружается первым -->
+  <link rel="preload" as="image" href="assets/images/photo1.jpg" fetchpriority="high">
+  <!-- 2. Музыка - загружается вторым -->
+  <link rel="preload" as="audio" href="assets/audio/fon.mp3" fetchpriority="high">
+  <!-- 3. Photo2 (фон body) - загружается третьим -->
+  <link rel="preload" as="image" href="assets/images/photo2.jpg" fetchpriority="high">
+</head>
+<body>
+  <!-- Первый (пустой) прелоадер: должен быть первым элементом в body -->
+  <div id="preloaderOverlay" role="dialog" aria-modal="true" aria-hidden="false" tabindex="-1">
+    <div class="preloader-stage2"><!-- сюда переместим существующий #preloader через JS --></div>
+  </div>
+  <!-- Заставка (прелоадер) -->
+  <div class="preloader" id="preloader">
+    <div class="rings">
+      <div class="ring ring-1"></div>
+      <div class="ring ring-2"></div>
+      <div class="ring ring-3"></div>
+    </div>
+    <div class="names">Артём и Елизавета</div>
+    <div class="date">24 июля 2026</div>
+    <div class="instruction">Коснитесь экрана</div>
+  </div>
+  
+  <!-- Модальное окно выбора карт (изначально скрыто) -->
+  <div class="route-modal" id="routeModal" style="display: none;">
+    <div class="route-modal-content">
+      <h3>Выберите карты</h3>
+      <button class="route-modal-btn btn yandex-btn">Яндекс Карты</button>
+      <button class="route-modal-btn btn google-btn">Google Карты</button>
+      <button class="route-modal-btn btn dgis-btn">2GIS</button>
+      <button class="route-modal-btn btn route-modal-cancel cancel-btn">Отмена</button>
+    </div>
+  </div>
+  
+  <!-- Кнопка для открытия бокового меню -->
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  
+  <!-- Кнопка управления музыкой -->
+  <button class="music-btn" id="musicBtn" aria-label="Музыка">
+    <svg id="iconSound" viewBox="0 0 24 24">
+      <polygon points="3,9 9,9 13,5 13,19 9,15 3,15"/>
+      <path d="M16 8a5 5 0 0 1 0 8"/>
+    </svg>
+  </button>
+
+  <!-- Боковое меню навигации -->
+  <div class="sidebar" id="sidebar">
+    <a href="#hero" onclick="toggleMenu()">Главная</a>
+    <a href="#info" onclick="toggleMenu()">Информация</a>
+    <a href="#program" onclick="toggleMenu()">Программа</a>
+	<a href="#attendance" onclick="toggleMenu()">Присутствие</a>
+    <a href="#dress" onclick="toggleMenu()">Дресс-код</a>
+    <a href="#contacts" onclick="toggleMenu()">Контакты</a>
+  </div>
+  
+  <!-- Подложка для затемнения при открытии меню -->
+  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+<!-- Герой (главный экран с фоном и заголовком) -->
+<section class="hero" id="hero">
+  <div class="hero-overlay">
+    <canvas id="heroParticles" aria-hidden="true"></canvas>
+    <div class="hero-decoration">
+      <div class="decoration-line left"></div>
+      <div class="hero-icon">
+        <div class="icon-circle"></div>
+      </div>
+      <div class="decoration-line right"></div>
+    </div>
+    
+    <div class="hero-content">
+      <div class="hero-text-wrapper">
+        <h1 class="hero-title">Приглашение</h1>
+        <h1 class="hero-subtitle">на свадьбу</h1>
+      </div>
+      
+      <div class="hero-names">
+        <span class="name groom">Артём и Елизавета</span>
+      </div>
+      
+      <div class="hero-date">
+        <div class="date-line"></div>
+        <span class="date-text">24 июля 2026</span>
+        <div class="date-line"></div>
+      </div>
+    </div>
+    
+    <div class="hero-scroll-indicator">
+      <div class="scroll-arrow" aria-hidden="true" aria-label="Прокрутите вниз">
+        <svg class="arrow-down" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5V19M12 19L19 12M12 19L5 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="scroll-text">Листайте вниз</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Информация о событии -->
+<section id="info" class="torn-edge reveal">
+  <h2>Дорогие родные и близкие!</h2>
+  <p>Один день в этом году будет для нас особенным, и мы хотим провести его в кругу близких и друзей! С большим удовольствием приглашаем вас разделить с нами этот праздник - нашу свадьбу!</p>
+  <div class="info-card event-details reveal">
+  <div class="event-item">
+      <div class="event-icon">
+        <svg class="info-icon-calendar" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <rect x="6" y="10" width="52" height="48" rx="6" class="cal-outline"/>
+          <rect x="6" y="10" width="52" height="16" rx="6" class="cal-header"/>
+          <rect x="20" y="6" width="4" height="8" rx="2" class="cal-ring"/>
+          <rect x="40" y="6" width="4" height="8" rx="2" class="cal-ring"/>
+          <text x="32" y="23" text-anchor="middle" class="cal-month">ИЮЛЬ</text>
+          <rect x="22" y="34" width="20" height="16" rx="4" class="cal-day-bg"/>
+          <text x="32" y="46" text-anchor="middle" class="cal-day">24</text>
+        </svg>
+      </div>
+      <div class="event-info">
+        <div class="event-label">Дата нашей регистрации</div>
+        <div class="event-value">24 июля 2026 в 14:20</div>
+      </div>
+    </div>
+    
+    <div class="event-item">
+      <div class="event-icon">
+        <svg class="info-icon-venue" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <polygon points="32,10 8,24 56,24" class="v-stroke"/>
+          <path d="M32 28c-3-6-12-3-12 3 0 6 12 12 12 12s12-6 12-12c0-6-9-9-12-3z" class="v-accent"/>
+          <line x1="16" y1="24" x2="16" y2="46" class="v-stroke"/>
+          <line x1="24" y1="24" x2="24" y2="46" class="v-stroke"/>
+          <line x1="40" y1="24" x2="40" y2="46" class="v-stroke"/>
+          <line x1="48" y1="24" x2="48" y2="46" class="v-stroke"/>
+          <rect x="12" y="46" width="40" height="6" rx="2" class="v-fill"/>
+        </svg>
+      </div>
+      <div class="event-info">
+        <div class="event-label">Место</div>
+        <div class="event-value">Петроградский ЗАГС в Санкт-Петербурге</div>
+      </div>
+    </div>
+    
+    <div class="event-item">
+      <div class="event-icon">
+        <svg class="info-icon-map" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <polygon points="10,18 26,12 26,52 10,58" class="m-paper"/>
+          <polygon points="26,12 42,18 42,58 26,52" class="m-paper"/>
+          <polygon points="42,18 56,14 56,54 42,58" class="m-paper"/>
+          <line x1="26" y1="12" x2="26" y2="52" class="m-fold"/>
+          <line x1="42" y1="18" x2="42" y2="58" class="m-fold"/>
+          <path d="M42 28c0 6-10 16-10 16s-10-10-10-16a10 10 0 1 1 20 0z" class="m-pin"/>
+          <circle cx="32" cy="28" r="3" class="m-pin-center"/>
+        </svg>
+      </div>
+      <div class="event-info">
+        <div class="event-label">Банкет</div>
+        <div class="event-value">Глэмпинг Five Star Place</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Таймер обратного отсчета -->
+  <div class="widget reveal">
+    <h3>До свадьбы осталось:</h3>
+    <div class="countdown">
+      <div class="countdown-item"><span id="days">00</span><div class="countdown-label">дней</div></div>
+      <div class="countdown-item"><span id="hours">00</span><div class="countdown-label">часов</div></div>
+      <div class="countdown-item"><span id="minutes">00</span><div class="countdown-label">минут</div></div>
+      <div class="countdown-item"><span id="seconds">00</span><div class="countdown-label">секунд</div></div>
+    </div>
+    <!-- Кнопка добавления события в календарь -->
+    <button class="btn" id="addToCalendar">Добавить в календарь</button>
+  </div>
+</section>
+
+<!-- Программа мероприятия -->
+<section id="program" class="section-with-bg torn-edge reveal">
+  <h2>Программа дня</h2>
+  <div class="info-card timeline reveal">
+    <div class="timeline-item reveal">
+      <div class="timeline-marker">
+        <div class="timeline-time">14:00</div>
+        <div class="timeline-dot"></div>
+      </div>
+      <div class="timeline-content">
+        <h3>Сбор возле ЗАГСа</h3>
+        <p>Ждём всех у входа в Петроградский ЗАГС</p>
+        <button class="btn small-btn" data-location="Петроградский ЗАГС">Построить маршрут</button>
+      </div>
+    </div>
+    
+    <div class="timeline-item reveal">
+      <div class="timeline-marker">
+        <div class="timeline-time">14:20</div>
+        <div class="timeline-dot"></div>
+      </div>
+      <div class="timeline-content">
+        <h3>Торжественная церемония</h3>
+        <p>Самое важное событие дня</p>
+      </div>
+    </div>
+    
+    <div class="timeline-item reveal">
+      <div class="timeline-marker">
+        <div class="timeline-time">15:00</div>
+        <div class="timeline-dot"></div>
+      </div>
+      <div class="timeline-content">
+        <h3>Трансфер</h3>
+        <p>Трансфер до места банкета.</p>
+      </div>
+    </div>
+    
+    <div class="timeline-item reveal">
+      <div class="timeline-marker">
+        <div class="timeline-time">16:30</div>
+        <div class="timeline-dot"></div>
+      </div>
+      <div class="timeline-content">
+        <h3>Банкет</h3>
+        <p>Праздничный банкет в <b>Five Star Place</b></p>
+        <button class="btn small-btn" data-location="Ресторан">Построить маршрут</button>
+      </div>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="timeline-marker">
+        <div class="timeline-time">22:00</div>
+        <div class="timeline-dot"></div>
+      </div>
+      <div class="timeline-content">
+        <h3>Завершение</h3>
+        <p>Окончание праздника. Трансфер обратно.</p>
+      </div>
+    </div>
+  </div>
+    
+<!-- Информация о подарках -->
+<div class="gift-section reveal">
+  <div class="gift-content">
+    <div class="gift-main">
+      <h4>Главное для нас — ваше присутствие</h4>
+      <p>Мы будем искренне рады видеть вас на нашем празднике! Ваше внимание и участие в этот особенный день — это самый ценный подарок для нас.</p>
+    </div>
+    
+    <div class="gift-intro">
+      <p>Если вы хотите сделать нам подарок, мы будем благодарны за денежный вклад в наш общий семейный бюджет. Это поможет нам в начале нашего совместного пути.</p>
+    </div>
+    
+    
+    <div class="gift-main">
+      <p>Ваша поддержка и любовь — это то, что сделает наш день по-настоящему особенным. Просим вас воздержаться от криков <b>«Горько!»</b> и сохранить атмосферу уютного семейного праздника.</p>
+    </div>
+  </div>
+</div>
+  </section>
+  
+   <!-- Дресс-код -->
+  <section id="dress" class="torn-edge">
+    <h2>Дресс-код</h2>
+    <div class="info-card">
+      <p>Мы будем рады видеть вас в тёплой палитре, вдохновлённой летом, природой и уютом: лиственные и оливковые оттенки, инжирный, гранатовый, апельсиновый, лимонный, все вариации коричневого и бежевого. Выбирайте природные тона и комфортные фактуры.</p>
+      <!-- Слайдер для фотографий с примерами одежды -->
+      <div class="dress-slider">
+        <div class="dress-slides">
+			<div class="dress-slide dress-slide-1"></div>
+			<div class="dress-slide dress-slide-2"></div>
+        </div>
+        <button class="slider-btn prev-btn">❮</button>
+        <button class="slider-btn next-btn">❯</button>
+      </div>
+
+      <!-- Палитра цветов свадьбы -->
+      <p class="dress-hint"></p>
+      <div class="dress-colors">
+        <div style="background:#E67E22;" data-color="Апельсиновый"></div>
+        <div style="background:#7B1E2B;" data-color="Гранатовый"></div>
+        <div style="background:#6D4C5B;" data-color="Инжирный"></div>
+        <div style="background:#F2D16B;" data-color="Лимонный"></div>
+        <div style="background:#5F7F5A;" data-color="Листва/зелень"></div>
+        <div style="background:#8B5A2B;" data-color="Ореховый"></div>
+      </div>
+    </div>
+  </section>
+  
+  <section id="attendance" class="torn-edge">
+    <h2>Анкета</h2>
+    <div class="info-card">
+	  <p>Пожалуйста, подтвердите ваше присутствие на свадьбе до <b>10 июля 2026 года</b>. Это очень важно для нас.</p>
+    <form id="attendanceForm" class="attendance-form">
+        <div class="form-group">
+          <label for="name">Ваше имя и фамилия *</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Вы придёте на свадьбу? *</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="attendance" value="yes" required>
+              <span>Да, с удовольствием!</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="attendance" value="no">
+              <span>К сожалению, не смогу</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="form-group" id="guestsGroup">
+          <label for="guests">Количество гостей (включая вас) *</label>
+          <select id="guests" name="guests" required>
+            <option value="" disabled selected>Выберите количество</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+        
+        <div class="form-group" id="alcoholGroup">
+          <label>Предпочтения в алкогольных напитках</label>
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" name="alcohol" value="white-wine">
+              <span>Белое вино</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="alcohol" value="red-wine">
+              <span>Красное вино</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="alcohol" value="champagne">
+              <span>Шампанское</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="alcohol" value="vodka">
+              <span>Водка</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="alcohol" value="whiskey">
+              <span>Виски</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="alcohol" value="cognac">
+              <span>Коньяк</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="alcohol" value="no-alcohol">
+              <span>Не пью алкоголь</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="form-group" id="messageGroup">
+          <label for="message">Ваши пожелания или комментарии</label>
+          <textarea id="message" name="message" rows="3" placeholder="Напишите здесь ваши пожелания. Если у вас есть аллергия на продукты"></textarea>
+        </div>
+        
+        <button type="submit" class="btn" id="submitBtn">Отправить</button>
+      </form>
+      
+      <div id="formMessage" class="form-message"></div>
+    </div>
+  </section>
+
+   
+  
+<!-- Контакты -->
+<section id="contacts" class="torn-edge">
+  <h2>Наши контакты</h2>
+  <div class="info-card contacts-container">
+    <div class="compact-contacts">
+      <!-- Контакт Артёма -->
+      <div class="compact-contact-item">
+        <div class="compact-contact-info">
+          <span class="compact-name">Артём</span>
+        </div>
+        <a href="https://t.me/svchkv" target="_blank" class="compact-contact-link">
+          <span class="compact-link-text">Написать</span>
+          <span class="compact-link-icon">→</span>
+        </a>
+      </div>
+
+      <!-- Контакт Елизаветы -->
+      <div class="compact-contact-item">
+        <div class="compact-contact-info">
+          <span class="compact-name">Елизавета</span>
+        </div>
+        <a href="https://t.me/oeobvin" target="_blank" class="compact-contact-link">
+          <span class="compact-link-text">Написать</span>
+          <span class="compact-link-icon">→</span>
+        </a>
+      </div>
+
+      <!-- Общий чат -->
+      <div class="compact-contact-item chat-item">
+        <div class="compact-contact-info">
+          <span class="compact-name">Общий чат</span>
+        </div>
+        <a href="https://t.me/+74hA1oHsPxswNzI6" target="_blank" class="compact-contact-link">
+          <span class="compact-link-text">Присоединиться</span>
+          <span class="compact-link-icon">→</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="contacts-footer">
+      <p>Переходите и добавляйтесь в наш общий чат!</p>
+    </div>
+  </div>
+</section>
+  
+<!-- Футер -->
+<footer class="wedding-footer">
+  <div class="footer-content">
+    <div class="footer-heart-line">
+      <div class="heart-icon" id="easterHeartTrigger"></div>
+    </div>
+    <p class="footer-text">С любовью,</p>
+    <div class="footer-names">
+      <span class="footer-name groom">Артём и Елизавета</span>
+    </div>
+    <p class="footer-date">24 июля 2026</p>
+  </div>
+  <div class="footer-decoration">
+    <div class="footer-line"></div>
+  </div>
+</footer>
+  
+  <!-- Фоновая музыка -->
+  <audio id="bgMusic" loop preload="auto" autoplay muted playsinline>
+    <source src="assets/audio/fon.mp3" type="audio/mpeg">
+  </audio>
+  
+  <!-- Подключение JS -->
+  <script src="script.js"></script>
+  <!-- После подключения основного script.js -->
+  <script src="config.js"></script>
+  
+  <!-- EASTER EGG MODAL -->
+  <div id="easterOverlay" class="easter-overlay" aria-hidden="true">
+    <div class="easter-modal" role="dialog" aria-modal="true" aria-labelledby="easterTitle">
+      <button class="easter-close" id="easterClose" aria-label="Закрыть пасхалку">&times;</button>
+
+      <div class="easter-content">
+        <div class="easter-heart-wrap">
+          <svg viewBox="0 0 200 180" class="easter-heart-svg" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <defs>
+              <clipPath id="heartClip" clipPathUnits="objectBoundingBox">
+                <path d="M0.5,0.87 C0.5,0.87 0.05,0.6 0.05,0.375 C0.05,0.21 0.2,0.08 0.35,0.12 C0.42,0.14 0.5,0.22 0.5,0.32 C0.5,0.22 0.58,0.14 0.65,0.12 C0.8,0.08 0.95,0.21 0.95,0.375 C0.95,0.6 0.5,0.87 0.5,0.87Z"/>
+              </clipPath>
+              <linearGradient id="heartGradient" x1="0" x2="1">
+                <stop offset="0" stop-color="var(--paper-edge)"/>
+                <stop offset="1" stop-color="var(--primary)"/>
+              </linearGradient>
+            </defs>
+
+            <image x="0" y="0" width="100%" height="100%" href="assets/images/photo3.jpg" preserveAspectRatio="xMidYMid slice" clip-path="url(#heartClip)"></image>
+
+            <path d="M100 160 C100 160 20 110 20 72 C20 47 47 20 77 29 C92 34 100 48 100 48 C100 48 108 34 123 29 C153 20 180 47 180 72 C180 110 100 160 100 160Z"
+                  class="easter-heart-border" fill="none" stroke="url(#heartGradient)" stroke-width="4" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <div class="easter-text-wrap">
+          <h3 id="easterTitle">Поздравляем, вы нашли пасхалку!</h3>
+          <p>Напишите нам об этом и получите подарок на свадьбе!</p>
+        </div>
+      </div>
+
+      <canvas id="easterFireworks" class="easter-fireworks" aria-hidden="true"></canvas>
+    </div>
+  </div>
+</body>
+</html>
