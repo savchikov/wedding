@@ -528,9 +528,28 @@ h3 {
 
 /* Адаптивность */
 @media (max-width: 768px) {
-  /* Убираем fixed фон на body — на мобильных вызывает скачки и нахлёст при прокрутке */
+  /* Фон на мобильных: фиксированный слой с изображением, подогнанным под экран по ширине и высоте */
+  html {
+    min-height: 100%;
+  }
   body {
-    background-attachment: scroll !important;
+    min-height: 100%;
+    background-image: none !important;
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url(assets/images/photo2.jpg);
+    background-size: auto 100vh;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
+    pointer-events: none;
   }
   
   .hero-title {
