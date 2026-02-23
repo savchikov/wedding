@@ -1017,14 +1017,73 @@ function showSuccessToast(anchorEl, text) {
       }
     }, { root: null, rootMargin: '0px 0px -10% 0px', threshold: 0.1 });
 
-    const revealNodes = document.querySelectorAll('.reveal');
+    const revealNodes = document.querySelectorAll('.reveal:not(.gift-section):not(.event-details):not(.timeline)');
     revealNodes.forEach(el => observer.observe(el));
+
+    // Gift blocks: появление при скролле вниз, исчезновение при скролле вверх
+    const giftBlocks = document.querySelectorAll('.gift-section .gift-block');
+    if (giftBlocks.length) {
+      const giftObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          } else {
+            entry.target.classList.remove('visible');
+          }
+        });
+      }, { root: null, rootMargin: '0px 0px -5% 0px', threshold: 0.15 });
+
+      giftBlocks.forEach((block) => giftObserver.observe(block));
+    }
+
+    // Info event-items: 3 блока (Дата, Место, Банкет) — появление при скролле вниз, исчезновение вверх
+    const infoEventItems = document.querySelectorAll('#info .event-details .event-item');
+    if (infoEventItems.length) {
+      const infoObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          } else {
+            entry.target.classList.remove('visible');
+          }
+        });
+      }, { root: null, rootMargin: '0px 0px -5% 0px', threshold: 0.15 });
+
+      infoEventItems.forEach((el) => infoObserver.observe(el));
+    }
+
+    // Program timeline: маркер → карточка → маркер → карточка...
+    const timeline = document.querySelector('#program .timeline');
+    if (timeline) {
+      const timelineItems = timeline.querySelectorAll('.timeline-item');
+      const timelineRevealEls = [];
+      timelineItems.forEach((item) => {
+        const marker = item.querySelector('.timeline-marker');
+        const content = item.querySelector('.timeline-content');
+        if (marker) timelineRevealEls.push(marker);
+        if (content) timelineRevealEls.push(content);
+      });
+
+      const timelineObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          } else {
+            entry.target.classList.remove('visible');
+          }
+        });
+      }, { root: null, rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+
+      timelineRevealEls.forEach((el) => timelineObserver.observe(el));
+    }
 
     // Progressive enhancement: if JS disabled, content remains visible (CSS default covers)
   } catch (e) {
     // Fallback: ensure elements are visible if IntersectionObserver not supported
-    const revealNodes = document.querySelectorAll('.reveal');
-    revealNodes.forEach(el => el.classList.add('visible'));
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+    document.querySelectorAll('.gift-block').forEach(el => el.classList.add('visible'));
+    document.querySelectorAll('#info .event-details .event-item').forEach(el => el.classList.add('visible'));
+    document.querySelectorAll('.timeline-marker, .timeline-content').forEach(el => el.classList.add('visible'));
   }
 })();
 
