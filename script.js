@@ -1052,7 +1052,7 @@ function showSuccessToast(anchorEl, text) {
       infoEventItems.forEach((el) => infoObserver.observe(el));
     }
 
-    // Program timeline: маркер → карточка → маркер → карточка... Линия появляется с первой точкой, исчезает с последней
+    // Program timeline: анимация появления один раз, элементы не исчезают при скролле вверх
     const timeline = document.querySelector('#program .timeline');
     if (timeline) {
       const timelineItems = timeline.querySelectorAll('.timeline-item');
@@ -1066,24 +1066,18 @@ function showSuccessToast(anchorEl, text) {
 
       const markers = timeline.querySelectorAll('.timeline-marker');
 
-      const updateTimelineLine = () => {
-        const anyVisible = Array.from(markers).some((m) => m.classList.contains('visible'));
-        timeline.classList.toggle('timeline-line-visible', anyVisible);
-      };
-
       const timelineObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add('visible');
-          } else {
-            entry.target.classList.remove('visible');
+            timelineObserver.unobserve(entry.target);
+            const anyVisible = Array.from(markers).some((m) => m.classList.contains('visible'));
+            if (anyVisible) timeline.classList.add('timeline-line-visible');
           }
-          updateTimelineLine();
         });
       }, { root: null, rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
 
       timelineRevealEls.forEach((el) => timelineObserver.observe(el));
-      updateTimelineLine();
     }
 
     // Progressive enhancement: if JS disabled, content remains visible (CSS default covers)
