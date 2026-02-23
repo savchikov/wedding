@@ -1052,7 +1052,7 @@ function showSuccessToast(anchorEl, text) {
       infoEventItems.forEach((el) => infoObserver.observe(el));
     }
 
-    // Program timeline: маркер → карточка → маркер → карточка...
+    // Program timeline: маркер → карточка → маркер → карточка... Линия появляется с первой точкой, исчезает с последней
     const timeline = document.querySelector('#program .timeline');
     if (timeline) {
       const timelineItems = timeline.querySelectorAll('.timeline-item');
@@ -1064,6 +1064,13 @@ function showSuccessToast(anchorEl, text) {
         if (content) timelineRevealEls.push(content);
       });
 
+      const markers = timeline.querySelectorAll('.timeline-marker');
+
+      const updateTimelineLine = () => {
+        const anyVisible = Array.from(markers).some((m) => m.classList.contains('visible'));
+        timeline.classList.toggle('timeline-line-visible', anyVisible);
+      };
+
       const timelineObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -1071,10 +1078,12 @@ function showSuccessToast(anchorEl, text) {
           } else {
             entry.target.classList.remove('visible');
           }
+          updateTimelineLine();
         });
       }, { root: null, rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
 
       timelineRevealEls.forEach((el) => timelineObserver.observe(el));
+      updateTimelineLine();
     }
 
     // Progressive enhancement: if JS disabled, content remains visible (CSS default covers)
