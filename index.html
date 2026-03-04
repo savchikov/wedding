@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<script>
+(function(){
+  if(!window.TelegramWebview&&!/Telegram|TelegramBot/i.test(navigator.userAgent)&&!window.location.href.includes('tgWebAppData'))return;
+  var u=location.href,ios=/iPad|iPhone|iPod/.test(navigator.userAgent),and=/Android/.test(navigator.userAgent);
+  try{
+    if(window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.openLink){window.Telegram.WebApp.openLink(u);return;}
+    if(and){location.href='intent://'+u.replace(/^https?:\/\//,'')+'#Intent;scheme=https;package=com.android.chrome;end';}
+    else if(ios){var w=window.open(u,'_blank');if(!w)location.href=u;}
+    else location.href=u;
+  }catch(e){location.href=u;}
+})();
+</script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23EA785B'/><stop offset='100%' stop-color='%235F5420'/></linearGradient></defs><g fill='none' stroke='url(%23grad)' stroke-width='2.5'><circle cx='35' cy='50' r='11'/><circle cx='65' cy='50' r='11'/></g><g fill='url(%23grad)'><circle cx='35' cy='50' r='3.5'/><circle cx='65' cy='50' r='3.5'/></g><path d='M38 50 L62 50' stroke='url(%23grad)' stroke-width='1.2' stroke-linecap='round'/><path d='M35 47 L38 50 L35 53' stroke='url(%23grad)' stroke-width='1.2' fill='none'/><path d='M65 47 L62 50 L65 53' stroke='url(%23grad)' stroke-width='1.2' fill='none'/></svg>" type="image/svg+xml">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#EBD4CB">
+  
+  <!-- Заголовок страницы -->
+  <title>Свадьба Артёма и Елизаветы</title>
+  
+  <!-- Минимальные inline-стили для первого прелоадера (должны идти до style.css) -->
+  <style>
+    /* Пустой overlay сразу виден до загрузки основного CSS */
+    #preloaderOverlay { position: fixed; inset: 0; background: var(--bg, #EBD4CB); display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.45s ease; }
+    /* Скрыт второй этап до готовности шрифта */
+    #preloaderOverlay .preloader-stage2 { opacity: 0; visibility: hidden; }
+    #preloaderOverlay.stage2-ready .preloader-stage2 { opacity: 1; visibility: visible; transition: opacity 0.6s ease; }
+    /* Полное скрытие overlay после закрытия */
+    #preloaderOverlay.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+    /* Блокируем скролл пока overlay активен */
+    html.preloader-active { overflow: hidden; height: 100%; }
+  </style>
+  <!-- Подключение CSS -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Оптимизация порядка загрузки контента - все фото грузятся в первом прелоадере -->
+  <link rel="preload" as="image" href="assets/images/photo1.jpg" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/images/photo2.jpg" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/images/photo3.jpg">
+  <link rel="preload" as="image" href="assets/images/set1.jpg">
+  <link rel="preload" as="image" href="assets/images/set2.jpg">
+  <link rel="preload" as="image" href="assets/images/set3.jpg">
+  <link rel="preload" as="image" href="assets/images/set4.jpg">
+  <link rel="preload" as="image" href="assets/images/set5.jpg">
+</head>
+<body>
+  <!-- Первый (пустой) прелоадер: должен быть первым элементом в body -->
+  <div id="preloaderOverlay" role="dialog" aria-modal="true" aria-hidden="false" tabindex="-1">
+    <div class="preloader-stage2"><!-- сюда переместим существующий #preloader через JS --></div>
+  </div>
+  <!-- Заставка (прелоадер) -->
+  <div class="preloader" id="preloader">
+    <div class="heart-wrap" id="preloaderHeartWrap">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <defs>
+          <linearGradient id="preloaderLiquidGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#a02a3d"/>
+            <stop offset="100%" stop-color="#7B1E2B"/>
+          </linearGradient>
+          <clipPath id="preloaderClipHeart">
+            <path d="M60 105 C20 75 5 50 20 30 C30 15 50 20 60 35 C70 20 90 15 100 30 C115 50 100 75 60 105Z"/>
+          </clipPath>
+        </defs>
+        <path class="heart-outline" d="M60 105 C20 75 5 50 20 30 C30 15 50 20 60 35 C70 20 90 15 100 30 C115 50 100 75 60 105Z"/>
+        <g clip-path="url(#preloaderClipHeart)">
+          <path id="preloaderLiquid" fill="url(#preloaderLiquidGradient)"></path>
+          <path id="preloaderHighlight" fill="rgba(255,255,255,0.4)"></path>
+        </g>
+      </svg>
+    </div>
+    <div class="names">Артём и Елизавета</div>
+    <div class="date">24 июля 2026</div>
+    <div class="instruction" id="preloaderInstruction">Коснитесь экрана</div>
+  </div>
+  
+  <!-- Модальное окно выбора карт (изначально скрыто) -->
+  <div class="route-modal" id="routeModal" style="display: none;">
+    <div class="route-modal-content">
+      <h3>Выберите карты</h3>
+      <button class="route-modal-btn btn yandex-btn">Яндекс Карты</button>
+      <button class="route-modal-btn btn google-btn">Google Карты</button>
+      <button class="route-modal-btn btn dgis-btn">2GIS</button>
+      <button class="route-modal-btn btn route-modal-cancel cancel-btn">Отмена</button>
+    </div>
+  </div>
+  
+  <!-- Кнопка для открытия бокового меню -->
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  
+  <!-- Кнопка управления музыкой -->
+  <button class="music-btn" id="musicBtn" aria-label="Музыка">
+    <svg id="iconSound" viewBox="0 0 24 24">
+      <polygon points="3,9 9,9 13,5 13,19 9,15 3,15"/>
+      <path d="M16 8a5 5 0 0 1 0 8"/>
+    </svg>
+  </button>
+
+  <!-- Боковое меню навигации -->
+  <div class="sidebar" id="sidebar">
+    <a href="#hero" onclick="toggleMenu()">Главная</a>
+    <a href="#info" onclick="toggleMenu()">Информация</a>
+    <a href="#program" onclick="toggleMenu()">Программа</a>
+	<a href="#attendance" onclick="toggleMenu()">Присутствие</a>
+    <a href="#dress" onclick="toggleMenu()">Дресс-код</a>
+    <a href="#contacts" onclick="toggleMenu()">Контакты</a>
+  </div>
+  
+  <!-- Подложка для затемнения при открытии меню -->
+  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+<!-- Герой (главный экран с фоном и заголовком) -->
+<section class="hero" id="hero">
+  <div class="hero-overlay">
+    <canvas id="heroParticles" aria-hidden="true"></canvas>
+    <div class="hero-decoration">
+      <div class="decoration-line left"></div>
+      <div class="hero-icon">
+        <div class="icon-circle" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" focusable="false">
+            <path d="M32,61c27.1375-.5858,31.6117-38.4856,5.4471-45.3342C39.5086,13.172,41,10.6212,41,8c.0637-4.7877-6.4132-6.8539-8.999-2.9639C29.4146,1.1461,22.9362,3.2117,23,8c0,2.6211,1.4913,5.1719,3.5528,7.6657C.3716,22.5253,4.8816,60.4217,32,61ZM28,5c1.4434,0,2.1689.5713,3.1055,2.4458a1,1,0,0,0,1.789.001C33.833,5.5718,34.5586,5,36,5a3.0033,3.0033,0,0,1,3,3c.07,3.4909-4.1732,7.7438-7,10.5845C29.1735,15.7441,24.93,11.4906,25,8A3.0033,3.0033,0,0,1,28,5Zm4,16A17.019,17.019,0,0,1,49,38c-.9335,22.5529-33.07,22.5463-34,0A17.019,17.019,0,0,1,32,21Zm-3.9531-3.624c.5547.5919,1.1193,1.1851,1.6952,1.7709A19.0189,19.0189,0,0,0,13,38c1.0438,25.2062,36.96,25.1986,38,0a19.0189,19.0189,0,0,0-16.7421-18.853c.5759-.5858,1.1405-1.179,1.6952-1.7709A20.9058,20.9058,0,0,1,53,38c-1.1538,27.86-40.8507,27.851-42,0A20.9057,20.9057,0,0,1,28.0469,17.376Z"/>
+          </svg>
+        </div>
+      </div>
+      <div class="decoration-line right"></div>
+    </div>
+    
+    <div class="hero-content">
+      <div class="hero-text-wrapper">
+        <h1 class="hero-title">Приглашение</h1>
+        <h1 class="hero-subtitle">на свадьбу</h1>
+      </div>
+      
+      <div class="hero-names">
+        <span class="name groom">Артём и Елизавета</span>
+      </div>
+      
+      <div class="hero-date">
+        <div class="date-line"></div>
+        <span class="date-text">24 июля 2026</span>
+        <div class="date-line"></div>
+      </div>
+    </div>
+    
+    <div class="hero-scroll-indicator">
+      <div class="scroll-arrow" aria-hidden="true" aria-label="Прокрутите вниз">
+        <svg class="arrow-down" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5V19M12 19L19 12M12 19L5 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="scroll-text">Листайте вниз</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Информация о событии -->
+<section id="info" class="torn-edge reveal">
+  <h2>Дорогие родные и близкие!</h2>
+  <p>Один день в этом году будет для нас особенным, и мы хотим провести его в кругу близких и друзей! С большим удовольствием приглашаем вас разделить с нами этот праздник - нашу свадьбу!</p>
+  <div class="info-card event-details reveal">
+  <div class="event-item">
+      <div class="event-icon">
+        <svg class="info-icon-calendar" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <rect x="6" y="10" width="52" height="48" rx="6" class="cal-outline"/>
+          <rect x="6" y="10" width="52" height="16" rx="6" class="cal-header"/>
+          <rect x="20" y="6" width="4" height="8" rx="2" class="cal-ring"/>
+          <rect x="40" y="6" width="4" height="8" rx="2" class="cal-ring"/>
+          <text x="32" y="23" text-anchor="middle" class="cal-month">ИЮЛЬ</text>
+          <rect x="22" y="34" width="20" height="16" rx="4" class="cal-day-bg"/>
+          <text x="32" y="46" text-anchor="middle" class="cal-day">24</text>
+        </svg>
+      </div>
+      <div class="event-info">
+        <div class="event-label">Дата нашей регистрации</div>
+        <div class="event-value">24 июля 2026 в 14:20</div>
+      </div>
+    </div>
+    
+    <div class="event-item">
+      <div class="event-icon">
+        <svg class="info-icon-venue" viewBox="0 0 512.009 512.009" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <g><g><g>
+            <path class="v-fill" d="M500.29,216.752l-14.563-48.828c-2.591-8.67-11.723-13.614-20.385-11.022c-8.67,2.583-13.605,11.706-11.022,20.376 l14.563,48.837c1.429,4.757,1.074,8.892-0.976,11.652c-2.059,2.751-5.91,4.269-10.88,4.269H54.991 c-4.961,0-8.83-1.518-10.88-4.269c-2.05-2.76-2.405-6.896-0.985-11.652l22.35-74.963h68.049 c17.392,24.784,46.177,41.018,78.688,41.018c17.709,0,34.31-4.821,48.57-13.212c13.916,8.571,30.044,13.212,46.503,13.212 c31.354,0,58.948-16.373,74.698-41.018h76.746c9.052,0,16.382-7.339,16.382-16.382c0-9.043-7.33-16.382-16.382-16.382h-64.099 c0.817-4.824,1.248-9.777,1.249-14.829c0-48.863-39.731-88.612-88.586-88.612c-12.1,0-23.641,2.441-34.158,6.853 C256.065,7.828,234.451,0,212.213,0c-52.972,0-96.076,43.104-96.076,96.085c0,7.676,0.91,15.142,2.618,22.302H53.343 c-7.085-0.033-13.649,4.561-15.782,11.697l-25.843,86.678c-4.384,14.705-2.156,29.499,6.123,40.592 c8.271,11.093,21.805,17.456,37.149,17.456h402.035c15.335,0,28.878-6.372,37.149-17.465 C502.446,246.251,504.674,231.457,500.29,216.752z M212.213,32.774c11.474,0,22.407,3.011,31.985,8.639 c-15.763,16.005-25.507,37.956-25.507,62.144c0,10.303,1.766,20.447,5.271,30.138c3.062,8.52,12.451,12.921,20.971,9.851 c8.511-3.071,12.921-12.46,9.842-20.971c-2.201-6.115-3.328-12.522-3.328-19.018c0-30.786,25.044-55.839,55.839-55.839 c30.786,0,55.83,25.044,55.83,55.839c0,8.266-1.819,16.11-5.054,23.175c-0.348,0.617-0.657,1.258-0.924,1.921 c-9.205,18.217-28.086,30.743-49.851,30.743c-6.912,0-13.587-1.237-19.842-3.617c13.042-16.406,20.845-37.154,20.845-59.694 c0-9.017-1.251-17.944-3.718-26.544c-2.494-8.697-11.528-13.72-20.269-11.226c-8.697,2.503-13.72,11.572-11.226,20.27 c1.624,5.662,2.449,11.546,2.449,17.501c0,34.913-28.399,63.311-63.311,63.311c-34.913,0-63.32-28.399-63.32-63.311 C148.893,61.172,177.3,32.774,212.213,32.774z"/>
+            <path class="v-fill" d="M452.633,284.563c-9.052,0-16.382,7.339-16.382,16.391v178.281h-98.303V373.583c0-43.902-35.232-77.005-81.948-77.005 c-46.725,0-81.957,33.111-81.957,77.005v105.652H76.485V300.954c0-9.052-7.33-16.391-16.382-16.391s-16.382,7.339-16.382,16.391 v194.663c0,9.052,7.33,16.382,16.382,16.382h130.146c0.06,0.001,0.117,0.009,0.177,0.009s0.117-0.008,0.177-0.009h85.126 c9.052,0,16.391-7.321,16.391-16.374s-7.33-16.391-16.382-16.391h-68.929V373.583c0-29.029,24.751-44.231,49.201-44.231 c24.432,0,49.183,15.202,49.183,44.231v122.034c0,9.052,7.33,16.382,16.382,16.382h131.068c9.043,0,16.374-7.33,16.374-16.374 V300.954C469.016,291.902,461.685,284.563,452.633,284.563z"/>
+          </g></g></g>
+        </svg>
+      </div>
+      <div class="event-info">
+        <div class="event-label">Место</div>
+        <div class="event-value">Петроградский ЗАГС в Санкт-Петербурге</div>
+        <button class="btn small-btn" data-location="Петроградский ЗАГС">Построить маршрут</button>
+      </div>
+    </div>
+    
+    <div class="event-item">
+      <div class="event-icon">
+        <svg class="info-icon-map" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path class="v-fill" d="m54 39h-3v-5.44c.61-.36 1-.99 1-1.71v-3.85c0-1.65-1.35-3-3-3h-1v-5.29c.61-.36 1-1 1-1.72v-2c0-1.65-1.35-3-3-3h-11.16c1.12-.94 2.36-2.07 2.97-2.89 1.41-1.89 1.3-4.4-.26-5.96-1.51-1.51-3.87-1.53-5.45-.06l-.1.08-.07-.06c-1.61-1.49-3.97-1.47-5.48.04-1.56 1.56-1.67 4.07-.26 5.96.61.83 1.85 1.95 2.97 2.89h-11.16c-1.65 0-3 1.35-3 3v2c0 .72.39 1.36 1 1.72v5.28h-1c-1.65 0-3 1.35-3 3v3.85c0 .72.39 1.35 1 1.71v5.43h-3c-.55 0-1 .45-1 1v2c0 1.65 1.35 3 3 3h7.12c.46 2.28 2.47 4 4.88 4h2c1.65 0 3 1.35 3 3v3h-4c-1.65 0-3 1.35-3 3v2c0 .55.45 1 1 1h18c.55 0 1-.45 1-1v-2c0-1.65-1.35-3-3-3h-4v-3c0-1.65 1.35-3 3-3h2c2.41 0 4.43-1.72 4.9-4h7.1c1.65 0 3-1.35 3-3v-2c0-.55-.45-1-1-1zm-26.21-30.09c-.82-1.11-.8-2.48.07-3.35.4-.4.85-.56 1.29-.56.54 0 1.06.25 1.45.61l.75.64c.37.32.92.32 1.3 0l.78-.66c.68-.63 1.82-.91 2.71-.02.87.87.89 2.24.07 3.35-.74.99-2.92 2.8-4.21 3.82-1.29-1.02-3.47-2.82-4.21-3.82zm-10.79 7.09c0-.55.45-1 1-1h28c.55 0 1 .45 1 1v2l-1.06-.8c-.36-.27-.84-.27-1.2 0l-1.17.88c-.53.4-1.27.4-1.8 0l-1.16-.87c-.36-.27-.84-.27-1.2 0l-1.17.88c-.53.4-1.27.4-1.8 0l-1.17-.88c-.36-.27-.84-.27-1.2 0l-1.16.87c-.53.4-1.27.4-1.8 0l-1.16-.87c-.36-.27-.84-.27-1.2 0l-1.17.88c-.53.4-1.27.4-1.8 0l-1.17-.88c-.18-.13-.39-.2-.6-.2s-.42.07-.6.2l-1.16.87c-.53.4-1.27.4-1.8 0l-1.18-.88c-.36-.26-.84-.26-1.2 0l-1.07.8zm1 3.71c.07-.04.14-.06.2-.11l.47-.35.58.43c1.24.92 2.96.92 4.2 0l.56-.42.57.43c.62.46 1.36.69 2.1.69s1.48-.23 2.1-.69l.57-.43.56.42c1.24.93 2.97.93 4.21 0l.56-.42.57.43c1.24.93 2.96.93 4.2 0l.57-.43.56.42c1.24.93 2.96.93 4.2 0l.57-.43.46.35c.06.05.14.07.2.11v5.29h-28.01zm-4 8.29c0-.55.45-1 1-1h34c.55 0 1 .45 1 1v3.85l-.73-.61c-.37-.31-.92-.31-1.29 0l-.77.65c-.56.47-1.37.47-1.93 0l-.76-.64c-.37-.31-.92-.31-1.29 0l-.76.64c-.56.47-1.37.47-1.94 0l-.76-.64c-.37-.31-.92-.31-1.29 0l-.77.65c-.56.47-1.37.47-1.93 0l-.76-.64c-.37-.31-.92-.31-1.29 0l-.77.65c-.56.47-1.37.47-1.93 0l-.76-.64c-.37-.31-.92-.31-1.29 0l-.76.64c-.56.47-1.37.47-1.93 0l-.77-.65c-.37-.31-.92-.31-1.29 0l-.76.64c-.56.47-1.37.47-1.93 0l-.77-.65c-.37-.31-.91-.31-1.29 0l-.77.65c-.56.47-1.37.47-1.93 0l-.77-.65c-.19-.16-.41-.23-.64-.23s-.46.08-.64.23l-.74.62v-3.85zm1 5.56c.1-.06.2-.1.29-.18l.09-.08.13.11c.65.55 1.45.82 2.25.82s1.6-.27 2.25-.82l.13-.11.12.1c1.31 1.1 3.2 1.1 4.51 0l.12-.1.12.1c1.31 1.1 3.2 1.1 4.51 0l.12-.1.12.1c1.31 1.1 3.2 1.1 4.51 0l.12-.1.12.1c1.31 1.1 3.2 1.1 4.51 0l.12-.1.11.1c1.31 1.1 3.21 1.1 4.52 0l.11-.09.12.1c1.31 1.1 3.2 1.1 4.51 0l.12-.1.08.07c.09.08.19.12.29.18v5.44h-34zm25 24.44v1h-16v-1c0-.55.45-1 1-1h14c.55 0 1 .45 1 1zm0-11h-2c-2.76 0-5 2.24-5 5v3h-2v-3c0-2.76-2.24-5-5-5h-2c-1.3 0-2.42-.84-2.83-2h21.66c-.41 1.16-1.52 2-2.83 2zm13-5c0 .55-.45 1-1 1h-40c-.55 0-1-.45-1-1v-1h42z"/>
+        </svg>
+      </div>
+      <div class="event-info">
+        <div class="event-label">Банкет</div>
+        <div class="event-value">Глэмпинг Five Star Place</div>
+        <button class="btn small-btn" data-location="Ресторан">Построить маршрут</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Таймер обратного отсчета -->
+  <div class="widget reveal">
+    <h3>До свадьбы осталось:</h3>
+    <div class="countdown">
+      <div class="countdown-item"><span id="days">00</span><div class="countdown-label">дней</div></div>
+      <div class="countdown-item"><span id="hours">00</span><div class="countdown-label">часов</div></div>
+      <div class="countdown-item"><span id="minutes">00</span><div class="countdown-label">минут</div></div>
+      <div class="countdown-item"><span id="seconds">00</span><div class="countdown-label">секунд</div></div>
+    </div>
+    <!-- Кнопка добавления события в календарь -->
+    <button class="btn" id="addToCalendar">Добавить в календарь</button>
+  </div>
+</section>
+
+<!-- Программа мероприятия -->
+<section id="program" class="section-with-bg torn-edge reveal">
+  <h2>Программа дня</h2>
+  <div class="program-timeline-wrapper">
+    <div class="program-timeline" id="programTimeline">
+      <svg id="programSvg" aria-hidden="true">
+        <path id="programCurve"/>
+      </svg>
+      <div id="programHeart" class="program-timeline-heart" aria-hidden="true"></div>
+
+      <div class="program-item left">
+        <div class="program-header">13:45<br>Сбор возле ЗАГСа</div>
+        <div class="program-desc">Ждём всех у входа в Петроградский ЗАГС</div>
+        <div class="program-connector"></div>
+      </div>
+
+      <div class="program-item right">
+        <div class="program-header">14:20<br>Торжественная церемония</div>
+        <div class="program-desc">Самое важное событие дня</div>
+        <div class="program-connector"></div>
+      </div>
+
+      <div class="program-item left">
+        <div class="program-header">15:00<br>Трансфер</div>
+        <div class="program-desc">Трансфер до места банкета</div>
+        <div class="program-connector"></div>
+      </div>
+
+      <div class="program-item right">
+        <div class="program-header">16:30<br>Банкет</div>
+        <div class="program-desc">Праздничный банкет в <b>Five Star Place</b></div>
+        <div class="program-connector"></div>
+      </div>
+
+      <div class="program-item left">
+        <div class="program-header">22:00<br>Завершение</div>
+        <div class="program-desc">Окончание праздника, трансфер обратно в город</div>
+        <div class="program-connector"></div>
+      </div>
+    </div>
+  </div>
+
+<!-- Информация о подарках -->
+<div class="gift-section reveal">
+  <div class="gift-frame">
+    <div class="gift-content">
+      <div class="gift-block">
+        <p>Главное для нас — ваше присутствие. Мы будем искренне рады видеть вас на нашем празднике!</p>
+      </div>
+
+      <div class="gift-divider" aria-hidden="true"></div>
+
+      <div class="gift-block">
+        <p>Если вы хотите сделать нам подарок, мы будем благодарны за денежный вклад в наш общий семейный бюджет. Это поможет нам в начале нашего совместного пути.</p>
+      </div>
+
+      <div class="gift-divider" aria-hidden="true"></div>
+
+      <div class="gift-block">
+        <p>Ваша поддержка и любовь — это то, что сделает наш день по-настоящему особенным. Просим вас воздержаться от криков <b>«Горько!»</b> и сохранить атмосферу уютного семейного праздника.</p>
+      </div>
+    </div>
+  </div>
+</div>
+  </section>
+  
+   <!-- Дресс-код -->
+  <section id="dress" class="torn-edge">
+    <h2>Дресс-код</h2>
+    <div class="info-card">
+      <p>Мы будем рады видеть вас в тёплой палитре, вдохновлённой летом, природой и уютом: лиственные и оливковые оттенки, инжирный, гранатовый, апельсиновый, лимонный, все вариации коричневого и бежевого. Выбирайте природные тона и комфортные фактуры.</p>
+      <!-- Слайдер для фотографий с примерами одежды -->
+      <div class="dress-slider">
+        <div class="dress-slides">
+			<div class="dress-slide dress-slide-1"></div>
+			<div class="dress-slide dress-slide-2"></div>
+        </div>
+        <button class="slider-btn prev-btn">❮</button>
+        <button class="slider-btn next-btn">❯</button>
+      </div>
+
+      <!-- Палитра цветов свадьбы -->
+      <p class="dress-hint"></p>
+      <div class="dress-colors">
+        <div style="background:#E67E22;" data-color="Апельсиновый"></div>
+        <div style="background:#7B1E2B;" data-color="Гранатовый"></div>
+        <div style="background:#6D4C5B;" data-color="Инжирный"></div>
+        <div style="background:#F2D16B;" data-color="Лимонный"></div>
+        <div style="background:#5F7F5A;" data-color="Листва/зелень"></div>
+        <div style="background:#8B5A2B;" data-color="Ореховый"></div>
+      </div>
+    </div>
+  </section>
+  
+  <section id="attendance" class="torn-edge">
+    <h2>Анкета</h2>
+    <div class="info-card">
+	  <p>Пожалуйста, подтвердите ваше присутствие на свадьбе до <b>1 июля 2026 года</b>. Это очень важно для нас.</p>
+    <form id="attendanceForm" class="attendance-form">
+        <div class="form-group">
+          <label for="name">Ваше имя и фамилия *</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Вы придёте на свадьбу? *</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="attendance" value="yes" required>
+              <span>Да, с удовольствием!</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="attendance" value="no">
+              <span>К сожалению, не смогу</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="form-group" id="guestsGroup">
+          <label for="guests">Количество гостей (включая вас) *</label>
+          <select id="guests" name="guests" required>
+            <option value="" disabled selected>Выберите количество</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="guestNamesGroup">
+          <label for="guestNames">Напишите как их зовут</label>
+          <textarea id="guestNames" name="guestNames" rows="2" placeholder="Имена гостей"></textarea>
+        </div>
+        
+        <div class="form-group" id="alcoholGroup">
+          <label>Предпочтения в алкогольных напитках</label>
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" name="alcohol" value="white-wine">
+              <span>Белое вино</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="alcohol" value="red-wine">
+              <span>Красное вино</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="alcohol" value="champagne">
+              <span>Шампанское</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="alcohol" value="vodka">
+              <span>Водка</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="alcohol" value="whiskey">
+              <span>Виски</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="alcohol" value="cognac">
+              <span>Коньяк</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="alcohol" value="no-alcohol">
+              <span>Не пью алкоголь</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="form-group" id="messageGroup">
+          <label for="message">Ваши пожелания</label>
+          <textarea id="message" name="message" rows="3" placeholder="Напишите здесь ваши пожелания. Если у вас есть аллергия на продукты"></textarea>
+        </div>
+        
+        <button type="submit" class="btn" id="submitBtn">Отправить</button>
+      </form>
+      
+      <div id="formMessage" class="form-message"></div>
+    </div>
+  </section>
+
+   
+  
+<!-- Контакты -->
+<section id="contacts" class="torn-edge">
+  <h2>Наши контакты</h2>
+  <div class="info-card contacts-container">
+    <div class="compact-contacts">
+      <!-- Контакт Артёма -->
+      <div class="compact-contact-item">
+        <div class="compact-contact-info">
+          <span class="compact-name">Артём</span>
+        </div>
+        <a href="https://t.me/svchkv" target="_blank" class="compact-contact-link">
+          <span class="compact-link-text">Написать</span>
+          <span class="compact-link-icon">→</span>
+        </a>
+      </div>
+
+      <!-- Контакт Елизаветы -->
+      <div class="compact-contact-item">
+        <div class="compact-contact-info">
+          <span class="compact-name">Елизавета</span>
+        </div>
+        <a href="https://t.me/oeobvin" target="_blank" class="compact-contact-link">
+          <span class="compact-link-text">Написать</span>
+          <span class="compact-link-icon">→</span>
+        </a>
+      </div>
+
+      <!-- Общий чат -->
+      <div class="compact-contact-item chat-item">
+        <div class="compact-contact-info">
+          <span class="compact-name">Общий чат</span>
+        </div>
+        <a href="https://t.me/+74hA1oHsPxswNzI6" target="_blank" class="compact-contact-link">
+          <span class="compact-link-text">Присоединиться</span>
+          <span class="compact-link-icon">→</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="contacts-footer">
+      <p>Переходите и добавляйтесь в наш общий чат!</p>
+    </div>
+  </div>
+</section>
+  
+<!-- Футер -->
+<footer class="wedding-footer">
+  <div class="footer-content">
+    <div class="footer-heart-line">
+      <div class="heart-icon" id="easterHeartTrigger"></div>
+    </div>
+    <p class="footer-text">С любовью,</p>
+    <div class="footer-names">
+      <span class="footer-name groom">Артём и Елизавета</span>
+    </div>
+    <p class="footer-date">24 июля 2026</p>
+  </div>
+  <div class="footer-decoration">
+    <div class="footer-line"></div>
+  </div>
+</footer>
+  
+  <!-- Фоновая музыка -->
+  <audio id="bgMusic" loop preload="auto" autoplay muted playsinline>
+    <source src="assets/audio/fon.mp3" type="audio/mpeg">
+  </audio>
+  
+  <!-- Подключение JS -->
+  <script src="script.js"></script>
+  <!-- После подключения основного script.js -->
+  <script src="config.js"></script>
+  
+  <!-- EASTER EGG MODAL -->
+  <div id="easterOverlay" class="easter-overlay" aria-hidden="true">
+    <div class="easter-modal" role="dialog" aria-modal="true" aria-labelledby="easterTitle">
+      <button class="easter-close" id="easterClose" aria-label="Закрыть пасхалку">&times;</button>
+
+      <div class="easter-content">
+        <div class="easter-heart-wrap">
+          <svg viewBox="0 0 200 180" class="easter-heart-svg" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <defs>
+              <clipPath id="heartClip" clipPathUnits="objectBoundingBox">
+                <path d="M0.5,0.87 C0.5,0.87 0.05,0.6 0.05,0.375 C0.05,0.21 0.2,0.08 0.35,0.12 C0.42,0.14 0.5,0.22 0.5,0.32 C0.5,0.22 0.58,0.14 0.65,0.12 C0.8,0.08 0.95,0.21 0.95,0.375 C0.95,0.6 0.5,0.87 0.5,0.87Z"/>
+              </clipPath>
+              <linearGradient id="heartGradient" x1="0" x2="1">
+                <stop offset="0" stop-color="var(--paper-edge)"/>
+                <stop offset="1" stop-color="var(--primary)"/>
+              </linearGradient>
+            </defs>
+
+            <image x="0" y="0" width="100%" height="100%" href="assets/images/photo3.jpg" preserveAspectRatio="xMidYMid slice" clip-path="url(#heartClip)"></image>
+
+            <path d="M100 160 C100 160 20 110 20 72 C20 47 47 20 77 29 C92 34 100 48 100 48 C100 48 108 34 123 29 C153 20 180 47 180 72 C180 110 100 160 100 160Z"
+                  class="easter-heart-border" fill="none" stroke="url(#heartGradient)" stroke-width="4" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <div class="easter-text-wrap">
+          <h3 id="easterTitle">Поздравляем, вы нашли пасхалку!</h3>
+          <p>Напишите нам об этом и получите подарок на свадьбе!</p>
+        </div>
+      </div>
+
+      <canvas id="easterFireworks" class="easter-fireworks" aria-hidden="true"></canvas>
+    </div>
+  </div>
+</body>
+</html>
