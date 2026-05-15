@@ -684,8 +684,9 @@ async function sendToTelegram(formData) {
 📝 Пожелания: ${formData.message && formData.message.trim() !== '' ? formData.message : '—'}
     `.trim();
 
-    // Отправляем запрос к Telegram API
-    const response = await fetch(`https://api.telegram.org/bot${__K7p}/sendMessage`, {
+    
+    //const response = await fetch(`https://api.telegram.org/bot${__K7p}/sendMessage`, {
+    const response = await fetch(`https://telegg.ru/orig/bot${__K7p}/sendMessage`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
