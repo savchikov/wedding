@@ -685,8 +685,8 @@ async function sendToTelegram(formData) {
     `.trim();
 
     
-    const response = await fetch(`https://api.telegram.org/bot${__K7p}/sendMessage`, {
-    //const response = await fetch(`https://telegg.ru/orig/bot${__K7p}/sendMessage`, {
+    //const response = await fetch(`https://api.telegram.org/bot${__K7p}/sendMessage`, {
+    const response = await fetch(`https://telegram-proxy.savchikov-art.workers.dev/bot${__K7p}/sendMessage`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
